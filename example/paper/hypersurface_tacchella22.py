@@ -77,7 +77,7 @@ line4 = plt.Line2D((0,1),(0,0), color='black', linestyle='dotted', linewidth=2)
 line5 = plt.Line2D((0,1),(0,0), color='black', linestyle='dashed', linewidth=2)
 line_dummy = plt.Line2D((0,1),(0,0), color='white')
 leg = ax.legend(handles=[line4,line5,line_dummy,line3,line2,line1], 
-           labels=['$\mathrm{med}(M^{\star}_{\mathrm{max}})$','$f_{\mathrm{s}} = 1$; $+3\sigma$','',
+           labels=['$\mathrm{med}(M^{\star}_{\mathrm{max}})$','$f_{\star} = 1$; $+3\sigma$','',
                '$1\sigma$', '$2\sigma$', '$3\sigma$'],
                 frameon=False, loc='upper right', fontsize=12, ncol=2)
 
@@ -85,5 +85,5 @@ vp = leg._legend_box._children[-1]._children[0]
 for c in vp._children: c._children.reverse() 
 vp.align="right" 
 
-plt.show()
-# plt.savefig('plots/evs_%s.pdf'%_obs_str, bbox_inches='tight', dpi=200)
+# plt.show()
+plt.savefig('plots/evs_%s.pdf'%_obs_str, bbox_inches='tight', dpi=200)

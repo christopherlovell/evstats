@@ -127,7 +127,7 @@ line2 = plt.Line2D((0,1),(0,0), color=colors[1], linewidth=5)
 line3 = plt.Line2D((0,1),(0,0), color=colors[2], linewidth=5)
 line5 = plt.Line2D((0,1),(0,0), color='black', linestyle='dashed', linewidth=2)
 leg = ax.legend(handles=[_med_line[0],line5,_sim_line,line3,line2,line1],
-       labels=['$\mathrm{med}(M_{\mathrm{max}}^{\star})$','$f_{\mathrm{s}} = 1$; $+3\sigma$',_label,
+       labels=['$\mathrm{med}(M_{\mathrm{max}}^{\star})$','$f_{\star} = 1$; $+3\sigma$',_label,
                '$1\sigma$','$2\sigma$','$3\sigma$'], 
                 frameon=False, loc='upper right', ncol=2)#, bbox_to_anchor=(0.8,0.85), fontsize=12)
 
