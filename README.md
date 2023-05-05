@@ -1,5 +1,5 @@
 # evstats
-A python module for calculating extreme value statistics of the halo and galaxy stellar mass distributions. Full details provided in [arXiv:2208.10479](https://arxiv.org/abs/2208.10479).
+A python module for calculating extreme value statistics of the halo and galaxy stellar mass distributions. Full details provided in [Lovell et al. 2023](https://academic.oup.com/mnras/article/518/2/2511/6823705).
 
 <img src="https://www.christopherlovell.co.uk/images/jwst_evs.png" alt="drawing" width="400"/>
 
@@ -23,4 +23,4 @@ from evstats import stellar
 A notebook showing a simple example of how to create contours in the stellar mass -- redshift plane, for arbitrary survey areas, is available [here](https://nbviewer.org/github/christopherlovell/evstats/blob/main/example/example.ipynb).
 
 ### The paper
-All of the plots and analysis in Lovell et al. 2022 ([arXiv:2208.10479](https://arxiv.org/abs/2208.10479)) can be recreated using the scripts in `example/paper/`.
+All of the plots and analysis in [Lovell et al. 2023](https://academic.oup.com/mnras/article/518/2/2511/6823705) can be recreated using the scripts in `example/paper/`.
