@@ -2,6 +2,16 @@ import numpy as np
 from scipy.stats import uniform,norm,expon,truncnorm,lognorm,gaussian_kde
 
 
+def sample_halo_evs_pdf(pdf, _x, _N):
+    cumpdf = np.cumsum(pdf) / np.cumsum(pdf)[-1]
+    randv = np.random.uniform(size=_N)
+    idx1 = np.searchsorted(cumpdf, randv)
+    idx0 = np.where(idx1==0, 0, idx1-1)
+    idx1[idx0==0] = 1  # force first index if at edge of domain
+    frac1 = (randv - cumpdf[idx0]) / (cumpdf[idx1] - cumpdf[idx0])
+    randdist = _x[idx0]*(1-frac1) + _x[idx1]*frac1  # random samples from halo EVS PDF
+    return randdist
+
 def apply_fs_distribution(pdf, _x, method='lognormal', _N=int(1e4), f_b=0.16):
     """
     Use Monte Carlo sampling to estimate the combined pdf of an EVS distribution and an f_s distribution.
@@ -24,14 +34,15 @@ def apply_fs_distribution(pdf, _x, method='lognormal', _N=int(1e4), f_b=0.16):
     
     """
     
-    ## stellar mass CIs
-    cumpdf = np.cumsum(pdf) / np.cumsum(pdf)[-1]
-    randv = np.random.uniform(size=_N)
-    idx1 = np.searchsorted(cumpdf, randv)
-    idx0 = np.where(idx1==0, 0, idx1-1)
-    idx1[idx0==0] = 1  # force first index if at edge of domain
-    frac1 = (randv - cumpdf[idx0]) / (cumpdf[idx1] - cumpdf[idx0])
-    randdist = _x[idx0]*(1-frac1) + _x[idx1]*frac1  # random samples from halo EVS PDF
+    # ## stellar mass CIs
+    # cumpdf = np.cumsum(pdf) / np.cumsum(pdf)[-1]
+    # randv = np.random.uniform(size=_N)
+    # idx1 = np.searchsorted(cumpdf, randv)
+    # idx0 = np.where(idx1==0, 0, idx1-1)
+    # idx1[idx0==0] = 1  # force first index if at edge of domain
+    # frac1 = (randv - cumpdf[idx0]) / (cumpdf[idx1] - cumpdf[idx0])
+    # randdist = _x[idx0]*(1-frac1) + _x[idx1]*frac1  # random samples from halo EVS PDF
+    randdist = sample_halo_evs_pdf(pdf, _x, _N)
     
     ## sample from f_s distribution
     if method=='normal': 
@@ -57,3 +68,19 @@ def _trunc_lognormal(mean,sigma,N,lolim=0,hilim=1):
         _outside = (x < lolim) | (x >= hilim)
             
     return x
+
+def apply_halo_dependent_fs(pdf, log10m, _N=int(1e3)):
+    """
+    Apply Andreon+10 fits:
+    https://ui.adsabs.harvard.edu/abs/2010MNRAS.407..263A/abstract
+    """
+    randdist = sample_halo_evs_pdf(pdf, log10m, _N)
+    
+    slope = norm.rvs(loc=0.45, scale=0.08, size=_N)
+    intersect = norm.rvs(loc=12.68, scale=0.03, size=_N)
+
+    log_mstar = (randdist - 14.5) * slope + intersect
+    
+    kernel = gaussian_kde(log_mstar.flatten(), bw_method=0.08)
+    return kernel.pdf(log10m)
+    
