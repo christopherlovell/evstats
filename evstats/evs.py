@@ -24,9 +24,9 @@ def evs_hypersurface_pdf(mf = hmf.MassFunction(), V = 33510.321):
 
     """
 
-    n_tot = integrate.trapz(mf.dndlog10m, np.log10(mf.m))
+    n_tot = integrate.trapezoid(mf.dndlog10m, np.log10(mf.m))
     f = mf.dndlog10m[:-1] / n_tot
-    F = integrate.cumtrapz(mf.dndlog10m, np.log10(mf.m)) / n_tot
+    F = integrate.cumulative_trapezoid(mf.dndlog10m, np.log10(mf.m)) / n_tot
     N = V*n_tot
     phi_max = N*f*(F**(N-1))
     return phi_max
@@ -122,12 +122,12 @@ def _computeNinbin(mf, zmin, zmax, lnmax=False, dz=0.01):
     dndmdz = [_dNdlnmdz(z=z, mf=mf, dvdz=dv) for z, dv in zip(zees,dvdz)]
     
     # integrate over z
-    return integrate.trapz(dndmdz, zees)
+    return integrate.trapezoid(dndmdz, zees)
 
 
 def _dNdlnmdz(z, mf, dvdz):
     mf.update(z=z)
-    return integrate.trapz(mf.dndlnm.astype('longdouble') * dvdz, np.log(mf.m))
+    return integrate.trapezoid(mf.dndlnm.astype('longdouble') * dvdz, np.log(mf.m))
 
 
 if __name__ == '__main__':
