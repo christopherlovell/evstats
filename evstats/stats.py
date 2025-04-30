@@ -20,16 +20,20 @@ def compute_conf_ints(pdf, x, lims = [0.0013498980, 0.0227501319, 0.15865525,
     """
     
     intcum = integrate.cumulative_trapezoid(pdf, x, initial=0.)
-    
+
+    if np.sum(intcum) == 0:
+        return np.zeros(len(lims))
+
     if np.squeeze(pdf).ndim > 1:
+        intcum[intcum > 0] = intcum[intcum > 0.] / intcum[intcum > 0].max(axis=0)
+
         CI = np.vstack([x[[np.max(np.where(_ic < lim)) \
                          for _ic in intcum]] for lim in lims]).T
     else:
+        intcum[intcum > 0] = intcum[intcum > 0] / intcum[intcum > 0].max()
         CI = x[[np.max(np.where(intcum < lim)) for lim in lims]]
-        
+
     return CI
-
-
 
 
 def eddington_bias(m, m_err, mf = hmf.MassFunction()):
