@@ -72,9 +72,7 @@ def _trunc_lognormal(mean,sigma,N,lolim=0,hilim=1):
 
 
 def halo_dependent_fs(
-    pdf,
-    log10m,
-    _N=int(1e3),
+    halom,
     lo_halo_mass=13.5,
     hi_halo_mass=14.0,
     f_b=0.16,
@@ -83,9 +81,8 @@ def halo_dependent_fs(
     Apply Andreon+10 fits:
     https://ui.adsabs.harvard.edu/abs/2010MNRAS.407..263A/abstract
     """
-    # Sample _N haloes
-    halom = sample_halo_evs_pdf(pdf, log10m, _N)
-    
+    _N = len(halom)
+ 
     # Sample parameters of the stellar-halo mass relation 
     slope = norm.rvs(loc=0.45, scale=0.08, size=_N)
     intersect = norm.rvs(loc=12.68, scale=0.03, size=_N)
@@ -109,12 +106,22 @@ def halo_dependent_fs(
     # Apply stellar and baryon fraction
     log_mstar = np.log10(10**halom * f_s * f_b)
 
-    return halom, log_mstar, f_s
+    return log_mstar, f_s
 
 
-def apply_halo_dependent_fs(pdf, log10m, _N=int(1e3), f_b=0.16):
-    _, log_mstar, _ = halo_dependent_fs(pdf, log10m, _N, f_b=f_b)
+def apply_halo_dependent_fs(
+    pdf,
+    log10m,
+    lo_halo_mass=13.5,
+    hi_halo_mass=14.0,
+    N=int(1e3),
+    f_b=0.16
+):
+    # Sample _N haloes
+    halom = sample_halo_evs_pdf(pdf, log10m, _N)
+     
+    log_mstar, _ = halo_dependent_fs(halom, f_b=f_b)
    
     kernel = gaussian_kde(log_mstar.flatten(), bw_method=0.08)
     return kernel.pdf(log10m)
-    
+ 
