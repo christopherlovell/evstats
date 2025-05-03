@@ -12,6 +12,7 @@ def sample_halo_evs_pdf(pdf, _x, _N):
     randdist = _x[idx0]*(1-frac1) + _x[idx1]*frac1  # random samples from halo EVS PDF
     return randdist
 
+
 def apply_fs_distribution(pdf, _x, method='lognormal', _N=int(1e4), f_b=0.16):
     """
     Use Monte Carlo sampling to estimate the combined pdf of an EVS distribution and an f_s distribution.
@@ -69,18 +70,51 @@ def _trunc_lognormal(mean,sigma,N,lolim=0,hilim=1):
             
     return x
 
-def apply_halo_dependent_fs(pdf, log10m, _N=int(1e3)):
+
+def halo_dependent_fs(
+    pdf,
+    log10m,
+    _N=int(1e3),
+    lo_halo_mass=13.5,
+    hi_halo_mass=14.0,
+    f_b=0.16,
+):
     """
     Apply Andreon+10 fits:
     https://ui.adsabs.harvard.edu/abs/2010MNRAS.407..263A/abstract
     """
-    randdist = sample_halo_evs_pdf(pdf, log10m, _N)
+    # Sample _N haloes
+    halom = sample_halo_evs_pdf(pdf, log10m, _N)
     
+    # Sample parameters of the stellar-halo mass relation 
     slope = norm.rvs(loc=0.45, scale=0.08, size=_N)
     intersect = norm.rvs(loc=12.68, scale=0.03, size=_N)
 
-    log_mstar = (randdist - 14.5) * slope + intersect
-    
+    # Convert halo masses to stellar fractions
+    f_s_hi = 10**((halom - 14.5) * slope + intersect) / 10**halom
+
+    # Apply truncated lognorm at low halo masses
+    f_s_lo = _trunc_lognormal(-2, 1, N=_N)
+
+    f_s = f_s_hi.copy()
+
+    # For haloes in the transition region, use mixture
+    mask = (halom > lo_halo_mass) & (halom < hi_halo_mass)
+    weighting = (halom[mask] - lo_halo_mass) / (hi_halo_mass - lo_halo_mass)
+    f_s[mask] = (weighting * f_s_hi[mask] + (1 - weighting) * f_s_lo[mask])
+
+    mask = (halom < lo_halo_mass)
+    f_s[mask] = f_s_lo[mask]
+
+    # Apply stellar and baryon fraction
+    log_mstar = np.log10(10**halom * f_s * f_b)
+
+    return halom, log_mstar, f_s
+
+
+def apply_halo_dependent_fs(pdf, log10m, _N=int(1e3), f_b=0.16):
+    _, log_mstar, _ = halo_dependent_fs(pdf, log10m, _N, f_b=f_b)
+   
     kernel = gaussian_kde(log_mstar.flatten(), bw_method=0.08)
     return kernel.pdf(log10m)
     
