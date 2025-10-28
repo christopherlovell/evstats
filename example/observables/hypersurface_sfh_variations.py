@@ -22,7 +22,7 @@ with h5py.File('../data/evs_all.h5','r') as hf:
 band = 'NIRCam.F444W'
 
 
-_obs_str = f'Casey24_{band}'
+_obs_str = f'tau_{band}'
 
 whole_sky = (41252.96 * u.deg**2).to(u.arcmin**2)
 survey_area = 0.28 * u.degree**2
@@ -47,22 +47,25 @@ CI_baryon = np.log10(10**CI_mhalo * f_b)
 # Confidence interval
 redshift_idx = np.arange(len(z))
 # CI_flux = np.log10(np.vstack([compute_conf_ints(mstar_pdf[i], flux_grid[:, i]) for i in redshift_idx]))
-
-low_z_colors = ['steelblue','lightskyblue','powderblue'] # ['brown','lightcoral','mistyrose']
-colors = low_z_colors
+ 
+# low_z_colors = ['steelblue','lightskyblue','powderblue'] # ['brown','lightcoral','mistyrose']
+# colors = low_z_colors
 
 fig, ax = plt.subplots(1, 1, figsize=(5,5))
 
+import matplotlib as mpl
+cmap = mpl.colormaps['viridis']
+colors = cmap(np.linspace(0, 1, 5))
 
-for tau in [20, 
-flux_grid = np.loadtxt(f"data/flux_grid_{band}.txt")
-CI_flux = np.log10(np.vstack([compute_conf_ints(phi_max[i], flux_grid[:, i]) for i in redshift_idx]))
+for i, tau in enumerate([-20, -50, -100, -500, -1000]): 
+    flux_grid = np.loadtxt(f"data/flux_grid_{band}_tau_m{-1 * tau}.txt")
+    CI_flux = np.log10(np.vstack([compute_conf_ints(phi_max[i], flux_grid[:, i]) for i in redshift_idx]))
 
-# ax.fill_between(z, CI_flux[:,0], CI_flux[:,6], alpha=1, color=colors[0])
-ax.fill_between(z, CI_flux[:,1], CI_flux[:,5], alpha=1, color=colors[1])
-ax.fill_between(z, CI_flux[:,2], CI_flux[:,4], alpha=1, color=colors[2])
-ax.plot(z, CI_flux[:,3], linestyle='dotted', c='black')
-# ax.plot(z, CI_baryon[:,6], linestyle='dashed', color='black')
+    # ax.fill_between(z, CI_flux[:,0], CI_flux[:,6], alpha=1, color=colors[0])
+    # ax.fill_between(z, CI_flux[:,1], CI_flux[:,5], alpha=1, color=colors[1])
+    # ax.fill_between(z, CI_flux[:,2], CI_flux[:,4], alpha=1, color=colors[2])
+    ax.plot(z, CI_flux[:,5], label=tau, color=colors[i])
+    # ax.plot(z, CI_baryon[:,6], linestyle='dashed', color='black')
 
 
 #z of EazY
@@ -82,44 +85,44 @@ flux_err = np.array([8.1, 7.1, 7.3, 8.5, 7.7, 8.6, 6.9, 6.8, 5.1, 6.3, 5.8, 4.8,
 # M_corr, _epsilon = eddington_bias(np.log10(10**M * (1./f_b)), M_err)
 # M_corr = np.log10(10**M_corr * f_b) 
 
-# ax.errorbar(
-#     z_obs,
-#     np.log10(flux),
-#     xerr=zerr,
-#     yerr=(
-#         np.log10(flux) - np.log10(flux - flux_err),
-#         np.log10(flux + flux_err) - np.log10(flux),
-#     ),
-#     fmt='o',
-#     c='orange'
-# )
+ax.errorbar(
+    z_obs,
+    np.log10(flux),
+    xerr=zerr,
+    yerr=(
+        np.log10(flux) - np.log10(flux - flux_err),
+        np.log10(flux + flux_err) - np.log10(flux),
+    ),
+    fmt='o',
+    c='orange'
+)
 
 # ax.errorbar(z_obs, M_corr, xerr=zerr, yerr=M_err, fmt='o', c='orange', label='Casey24')
 
 ax.set_xlim(2, 18)
-ax.set_ylim(-3,8)
+ax.set_ylim(1,9)
 ax.set_xlabel('$z$', size=17)
 ax.set_ylabel("Flux [nJy]", size = 17)
 #ax.set_ylabel('$\mathrm{log_{10}}(M^{\star}_{\mathrm{max}} \,/\, M_{\odot})$', size=15)
 ax.text(0.05, 0.04, r'$A = 0.28 \; \mathrm{arcmin}^2$', size=12, color='black', alpha=0.8, transform = ax.transAxes)
 
-leg = ax.legend(frameon=False, bbox_to_anchor=(0.44,0.19), fontsize=12, handletextpad=0.2) 
-plt.gca().add_artist(leg) # Add the legend manually to the current Axes.
+leg = ax.legend(frameon=False, fontsize=12, handletextpad=0.2, title=r'$\tau$') 
+# plt.gca().add_artist(leg) # Add the legend manually to the current Axes.
+# 
+# line1 = plt.Line2D((0,1),(0,0), color=colors[0], linewidth=5)
+# line2 = plt.Line2D((0,1),(0,0), color=colors[1], linewidth=5)
+# line3 = plt.Line2D((0,1),(0,0), color=colors[2], linewidth=5)
+# line4 = plt.Line2D((0,1),(0,0), color='black', linestyle='dotted', linewidth=2)
+# line5 = plt.Line2D((0,1),(0,0), color='black', linestyle='dashed', linewidth=2)
+# line_dummy = plt.Line2D((0,1),(0,0), color='white')
+# leg = ax.legend(handles=[line4,line5,line_dummy,line3,line2,line1], 
+#            labels=[r'$\mathrm{med}(M^{\star}_{\mathrm{max}})$', r'$f_{\star} = 1$; $+3\sigma$','',
+#                r'$1\sigma$', r'$2\sigma$', r'$3\sigma$'],
+#                 frameon=False, loc='upper right', fontsize=12, ncol=2)
+# 
+# vp = leg._legend_box._children[-1]._children[0] 
+# for c in vp._children: c._children.reverse() 
+# vp.align="right" 
 
-line1 = plt.Line2D((0,1),(0,0), color=colors[0], linewidth=5)
-line2 = plt.Line2D((0,1),(0,0), color=colors[1], linewidth=5)
-line3 = plt.Line2D((0,1),(0,0), color=colors[2], linewidth=5)
-line4 = plt.Line2D((0,1),(0,0), color='black', linestyle='dotted', linewidth=2)
-line5 = plt.Line2D((0,1),(0,0), color='black', linestyle='dashed', linewidth=2)
-line_dummy = plt.Line2D((0,1),(0,0), color='white')
-leg = ax.legend(handles=[line4,line5,line_dummy,line3,line2,line1], 
-           labels=[r'$\mathrm{med}(M^{\star}_{\mathrm{max}})$', r'$f_{\star} = 1$; $+3\sigma$','',
-               r'$1\sigma$', r'$2\sigma$', r'$3\sigma$'],
-                frameon=False, loc='upper right', fontsize=12, ncol=2)
-
-vp = leg._legend_box._children[-1]._children[0] 
-for c in vp._children: c._children.reverse() 
-vp.align="right" 
-
-# plt.show()
-plt.savefig(f'plots/evs_{_obs_str}.png', bbox_inches='tight', dpi=200)
+plt.show()
+# plt.savefig(f'plots/evs_{_obs_str}.png', bbox_inches='tight', dpi=200)

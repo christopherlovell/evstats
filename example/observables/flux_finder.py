@@ -13,7 +13,7 @@ from synthesizer.emission_models.attenuation import Madau96
 from synthesizer.emission_models import IncidentEmission
 
 
-nprocs = 2
+# nprocs = 2
 
 with h5py.File('../data/evs_all.h5','r') as hf:
     log10m = hf['log10m'][:]
@@ -58,12 +58,16 @@ def create_galaxy(z, m, grid, tau):
     return galaxy(stars=exp_stars, redshift=z)
 
 
-fig, ax = plt.subplots(1, 1, figsize=(6, 5))
 
+import matplotlib as mpl
+
+fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+cmap = mpl.colormaps['viridis']
+colors = cmap(np.linspace(0, 1, 5))
 for i, tau in enumerate([-20, -50, -100, -500, -1000]):
     gal = create_galaxy(1, 10, grid, tau * Myr)
     # ax.step(10**gal.stars.log10ages / 1e9, gal.stars.sf_hist, where="mid", label=f'{tau} Myr')
-    ax.step(gal.stars.log10ages, gal.stars.sf_hist, where="mid", label=f'{tau} Myr')
+    ax.step(gal.stars.log10ages, gal.stars.sf_hist, where="mid", label=f'{tau} Myr', color=colors[i])
     # gal.stars.plot_sfh(ax=ax)
 
 # ax.set_xlim(0, 10)
@@ -72,7 +76,8 @@ ax.set_xlim(6, 11)
 ax.legend()
 ax.set_xlabel(r"${\rm log_{10}} \; \mathrm{age} \,/\, \mathrm{Gyr}$")
 ax.set_ylabel(r"SFH")
-plt.show()
+# plt.show()
+plt.savefig(f'plots/sfh_tau.png', bbox_inches='tight', dpi=200)
 
 
 def get_photo(z, fc, log10m, grid, tau=20 * Myr):
@@ -92,7 +97,7 @@ output = [get_photo(z, fc, log10m, grid) for z in redshifts]
 mass_ratios = 10**log10m / 10**log10m[0]
 
 # Save output
-for tau in [-20, -50, -100, -500, -1000]:
+for tau in [-20, -50, -100, -500, -1000, -2000, -4000]:
 
     output = [get_photo(z, fc, log10m, grid, tau=tau * Myr) for z in redshifts]
 

@@ -18,11 +18,7 @@ with h5py.File('../data/evs_all.h5','r') as hf:
     z = hf['z'][:]
 
 
-# Load flux grid data
-band = 'NIRCam.F444W'
-flux_grid = np.loadtxt(f"data/flux_grid_{band}.txt")
-
-_obs_str = f'Casey24_{band}'
+_obs_str = f'Casey24_all'
 
 whole_sky = (41252.96 * u.deg**2).to(u.arcmin**2)
 survey_area = 0.28 * u.degree**2
@@ -47,19 +43,36 @@ CI_baryon = np.log10(10**CI_mhalo * f_b)
 # Confidence interval
 redshift_idx = np.arange(len(z))
 # CI_flux = np.log10(np.vstack([compute_conf_ints(mstar_pdf[i], flux_grid[:, i]) for i in redshift_idx]))
-CI_flux = np.log10(np.vstack([compute_conf_ints(phi_max[i], flux_grid[:, i]) for i in redshift_idx]))
-
-
-fig, ax = plt.subplots(1, 1, figsize=(5,5))
 
 low_z_colors = ['steelblue','lightskyblue','powderblue'] # ['brown','lightcoral','mistyrose']
 colors = low_z_colors
 
-# ax.fill_between(z, CI_flux[:,0], CI_flux[:,6], alpha=1, color=colors[0])
-ax.fill_between(z, CI_flux[:,1], CI_flux[:,5], alpha=1, color=colors[1])
-ax.fill_between(z, CI_flux[:,2], CI_flux[:,4], alpha=1, color=colors[2])
-ax.plot(z, CI_flux[:,3], linestyle='dotted', c='black')
-# ax.plot(z, CI_baryon[:,6], linestyle='dashed', color='black')
+
+fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+axes = axes.flatten()
+
+tau = -1000
+for ax, band in zip(axes, ['NIRCam.F277W', 'NIRCam.F115W', 'NIRCam.F444W', 'MIRI.F770W']):
+
+    # Load flux grid data
+    flux_grid = np.loadtxt(f"data/flux_grid_{band}_tau_m{-1 * tau}.txt")
+
+    CI_flux = np.log10(np.vstack([compute_conf_ints(phi_max[i], flux_grid[:, i]) for i in redshift_idx]))
+
+    # ax.fill_between(z, CI_flux[:,0], CI_flux[:,6], alpha=1, color=colors[0])
+    ax.fill_between(z, CI_flux[:,1], CI_flux[:,5], alpha=1, color=colors[1])
+    ax.fill_between(z, CI_flux[:,2], CI_flux[:,4], alpha=1, color=colors[2])
+    ax.plot(z, CI_flux[:,3], linestyle='dotted', c='black')
+    # ax.plot(z, CI_baryon[:,6], linestyle='dashed', color='black')
+    
+    ax.set_xlim(2, 18)
+    ax.set_ylim(-3,8)
+    ax.set_xlabel('$z$', size=17)
+    ax.set_ylabel("Flux [nJy]", size = 17)
+
+    #ax.set_ylabel('$\mathrm{log_{10}}(M^{\star}_{\mathrm{max}} \,/\, M_{\odot})$', size=15)
+    # ax.text(0.05, 0.04, r'$A = 0.28 \; \mathrm{arcmin}^2$', size=12, color='black', alpha=0.8, transform = ax.transAxes)
+    ax.text(0.05, 0.04, f'{band}', size=12, color='black', alpha=0.8, transform = ax.transAxes)
 
 
 #z of EazY
@@ -93,13 +106,6 @@ ax.errorbar(
 
 # ax.errorbar(z_obs, M_corr, xerr=zerr, yerr=M_err, fmt='o', c='orange', label='Casey24')
 
-ax.set_xlim(2, 18)
-ax.set_ylim(-3,8)
-ax.set_xlabel('$z$', size=17)
-ax.set_ylabel("Flux [nJy]", size = 17)
-#ax.set_ylabel('$\mathrm{log_{10}}(M^{\star}_{\mathrm{max}} \,/\, M_{\odot})$', size=15)
-ax.text(0.05, 0.04, r'$A = 0.28 \; \mathrm{arcmin}^2$', size=12, color='black', alpha=0.8, transform = ax.transAxes)
-
 leg = ax.legend(frameon=False, bbox_to_anchor=(0.44,0.19), fontsize=12, handletextpad=0.2) 
 plt.gca().add_artist(leg) # Add the legend manually to the current Axes.
 
@@ -118,5 +124,5 @@ vp = leg._legend_box._children[-1]._children[0]
 for c in vp._children: c._children.reverse() 
 vp.align="right" 
 
-# plt.show()
+plt.show()
 plt.savefig(f'plots/evs_{_obs_str}.png', bbox_inches='tight', dpi=200)
