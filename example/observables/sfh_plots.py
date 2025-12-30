@@ -1,29 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import h5py
 from astropy.cosmology import Planck18 as cosmo
-from multiprocessing import Pool
-from unyt import Hz, Msun, Myr, erg, nJy, s, angstrom, Gyr
+from unyt import Msun, Gyr
 import matplotlib.pyplot as plt
 
 from synthesizer import galaxy
-from synthesizer.instruments import FilterCollection
-from synthesizer.grid import Grid
-from synthesizer.parametric import SFH, Stars, ZDist
-from synthesizer.emission_models.attenuation import Madau96
-from synthesizer.emission_models import IncidentEmission
+from synthesizer.parametric import SFH, Stars
 
-# nprocs = 2
-
-# # Loading grid
-# grid_name = "test_grid"
-# grid_dir = "/home/chris/.local/share/Synthesizer/grids/"
-
-# grid = Grid(
-#     grid_name,
-#     grid_dir=grid_dir,
-#     new_lam=np.logspace(2.3, 5, 500) * angstrom
-# )
 
 def create_galaxy(m, ages, met, max_age, sfh_type, sfh_params):
     if sfh_type == "Exponential":
@@ -55,8 +38,6 @@ def create_galaxy(m, ages, met, max_age, sfh_type, sfh_params):
 
     return galaxy(stars=stars)  # , redshift=z)
 
-# Hardcoded Values to loop through, MAYBE add constant, other types of exp. etc.
-# Should be able to comment out a model to remove, or add into params into here and if statement above
 sfh_models = {
     "Exponential": [
         {"tau": tau * Gyr} for tau in [-0.02, -0.1]],
@@ -76,15 +57,10 @@ max_age = cosmo.age(9)  # * Gyr
 ages = np.log10(np.linspace(1e-9, max_age.to_value("yr"), 100))
 met = np.array([0.01])
 
-# Loops over SFH types and parameters + plots
-# Unsure on some plotting/colour code - used AI to bugfix but end result *looks* nice?
 
 fig, ax = plt.subplots(figsize=(5,4))
 
-total_sfh = sum(len(v) for v in sfh_models.values())
-cmap = plt.colormaps['viridis']
-colors = ['C0', 'C1', 'C2']  # cmap(np.linspace(0, 1, total_sfh))
-
+colors = ['C0', 'C1', 'C2']
 
 for i, (sfh_type, param_list) in enumerate(sfh_models.items()):
     for ls, params in zip(["-", "--", ":"], param_list):
@@ -99,7 +75,6 @@ for i, (sfh_type, param_list) in enumerate(sfh_models.items()):
             linestyle=ls
         )
 
-# ax.set_xlim(6, 11)
 ax.set_xlim(0, 2.1e2)
 ax.set_xlabel(r"$\mathrm{age} \,/\, \mathrm{Myr}$")
 ax.set_ylabel("normalised SFH")
