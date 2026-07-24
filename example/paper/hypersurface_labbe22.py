@@ -33,18 +33,14 @@ CI_baryon = np.log10(10**CI_mhalo * f_b)
 # ])
 
 mstar_pdf = np.vstack([
-    apply_halo_dependent_fs(_phi_max, log10m, _N=int(5e3)) \
+    apply_halo_dependent_fs(_phi_max, log10m, _N=int(1e4)) \
     for _phi_max in phi_max
 ])
 
 CIs = compute_conf_ints(mstar_pdf, log10m)
 
-
-
 fig, ax = plt.subplots(1, 1, figsize=(10, 5))
-
-low_z_colors = ['brown','lightcoral','mistyrose'] # ['steelblue','lightskyblue','powderblue']
-colors = low_z_colors
+colors = ['brown','lightcoral','mistyrose'] # ['steelblue','lightskyblue','powderblue']
 
 ax.fill_between(z, CIs[:,0], CIs[:,6], alpha=1, color=colors[0])
 ax.fill_between(z, CIs[:,1], CIs[:,5], alpha=1, color=colors[1])
@@ -68,22 +64,6 @@ M_corr = np.log10(10**M_corr * f_b)
 ax.errorbar(z_obs, M, xerr=zerr, yerr=M_err, fmt='o', c='grey')
 ax.errorbar(z_obs, M_corr, xerr=zerr, yerr=M_err, fmt='o', c='dodgerblue', label='Labbe+22')
 #ax.errorbar(z_obs[2:], M_corr[2:], xerr=zerr[:,2:], yerr=M_err[:,2:], fmt='o', c='darkorange')
-
-# # z = 17 solution
-# z_obs = np.array([16, 4.8, 4.9])
-# zerr = np.array([[0.6, 0.1, 0],
-#                  [0.6, 0.1, 0.02]])
-# 
-# M = np.array([9.6, 9.6, 8.7])
-# M_err = np.array([[0.2, 0.2, 0.1],
-#                  [0.2, 0.5, 0.1]])
-# 
-# M_corr, _epsilon = eddington_bias(np.log10(10**M * (1./f_b)), M_err)
-# M_corr = np.log10(10**M_corr * f_b)
-# 
-# # plt.errorbar(z_obs, M, xerr=[zmin,zmax], yerr=Merr, fmt='o', c='orange', label='Caputi+15')
-# ax.errorbar(z_obs, M, xerr=zerr, yerr=M_err, fmt='o', c='grey')
-# ax.errorbar(z_obs, M_corr, xerr=zerr, yerr=M_err, fmt='o', c='darkblue', label='Naidu+22')
 
 ax.set_xlim(0.1, 18)
 ax.set_ylim(6, 14.8)
