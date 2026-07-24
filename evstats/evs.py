@@ -34,7 +34,7 @@ def evs_hypersurface_pdf(mf = hmf.MassFunction(), V = 33510.321):
 
 
 def evs_bin_pdf(mf = hmf.MassFunction(), zmin=0., zmax=0.1, dz=0.01, mmin=12, mmax=18, dm = 0.01, fsky=1.):
-    """
+    r"""
     Calculate EVS in redshift and mass bin
 
     Parameters
@@ -73,7 +73,7 @@ def _apply_fsky(N, f, F, fsky):
     
     
 def _evs_bin(mf = hmf.MassFunction(), zmin=0., zmax=0.1, dz=0.01, mmin=12, mmax=18, dm = 0.01):
-    """
+    r"""
     Calculate EVS (ignoring fsky dependence). Worker function for `evs_bin_pdf`
 
     Parameters
@@ -151,7 +151,7 @@ if __name__ == '__main__':
 
     plt.loglog(mass_function.m[:-1], phi_max)
     plt.ylim(10**-4,1)
-    plt.xlabel('Mass $[M_{\odot}h^{-1}]$')
-    plt.ylabel('$\phi(M_{max})$')
+    plt.xlabel(r'Mass $[M_{\odot}h^{-1}]$')
+    plt.ylabel(r'$\phi(M_{max})$')
 
     plt.show()
