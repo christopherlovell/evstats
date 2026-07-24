@@ -118,7 +118,7 @@ def apply_halo_dependent_fs(
     f_b=0.16
 ):
     # Sample _N haloes
-    halom = sample_halo_evs_pdf(pdf, log10m, _N)
+    halom = sample_halo_evs_pdf(pdf, log10m, N)
      
     log_mstar, _ = halo_dependent_fs(halom, f_b=f_b)
    
