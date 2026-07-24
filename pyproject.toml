@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evstats"
+version = "0.2"
+description = "Calculate extreme value statistics of the halo and galaxy mass distributions"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Chris Lovell", email = "chris.lovell.astro@gmail.com" },
+]
+keywords = [
+    "astronomy",
+    "cosmology",
+    "extreme-value-statistics",
+    "halo-mass-function",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "hmf",
+    "astropy",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+# Star-formation-history and observables module (evstats.sfr) extras
+sfr = [
+    "unyt",
+    "cosmos-synthesizer",
+]
+
+[project.urls]
+Homepage = "https://github.com/christopherlovell/evstats"
+Repository = "https://github.com/christopherlovell/evstats"
+Paper = "https://academic.oup.com/mnras/article/518/2/2511/6823705"
+
+[tool.setuptools]
+packages = ["evstats"]

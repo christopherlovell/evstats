@@ -1,14 +1,14 @@
 # evstats
 A python module for calculating extreme value statistics of the halo and galaxy stellar mass distributions. Full details provided in [Lovell et al. 2023](https://academic.oup.com/mnras/article/518/2/2511/6823705).
 
-<img src="https://www.christopherlovell.co.uk/images/jwst_evs.png" alt="drawing" width="400"/>
+<img src="http://www.christopherlovell.co.uk/assets/img/evs-1400.webp" alt="drawing" width="400"/>
 
 ### Installation
 
 Clone this repository, then run the following in your chosen python environment
 
 ```
-python setup.py install
+pip install .
 ```
 
 You can then use evstats as so:
@@ -17,6 +17,13 @@ You can then use evstats as so:
 from evstats import evs
 from evstats import stats
 from evstats import stellar
+```
+
+The star-formation-history module (`evstats.sfr`) has extra dependencies
+(`unyt` and `cosmos-synthesizer`). Install them with:
+
+```
+pip install ".[sfr]"
 ```
 
 ### An example
