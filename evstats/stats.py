@@ -19,21 +19,19 @@ def compute_conf_ints(pdf, x, lims = [0.0013498980, 0.0227501319, 0.15865525,
     
     """
     
-    intcum = integrate.cumulative_trapezoid(pdf, x, initial=0.)
+    pdf = np.asarray(pdf, dtype=float)
+    cdf = integrate.cumulative_trapezoid(pdf, x, axis=-1, initial=0.)
 
-    if np.sum(intcum) == 0:
-        return np.zeros(len(lims))
-
+    # Invert each (per-row normalised) CDF by interpolation, so the CI
+    # coordinates are continuous in x rather than snapped to the grid.
     if np.squeeze(pdf).ndim > 1:
-        intcum[intcum > 0] = intcum[intcum > 0.] / intcum[intcum > 0].max(axis=0)
+        norm = cdf[:, -1][:, None]
+        cdf = np.divide(cdf, norm, out=np.zeros_like(cdf), where=norm > 0)
+        return np.array([np.interp(lims, _c, x) for _c in cdf])
 
-        CI = np.vstack([x[[np.max(np.where(_ic < lim)) \
-                         for _ic in intcum]] for lim in lims]).T
-    else:
-        intcum[intcum > 0] = intcum[intcum > 0] / intcum[intcum > 0].max()
-        CI = x[[np.max(np.where(intcum < lim)) for lim in lims]]
-
-    return CI
+    if cdf[-1] == 0:
+        return np.zeros(len(lims))
+    return np.interp(lims, cdf / cdf[-1], x)
 
 
 def eddington_bias(m, m_err, mf = hmf.MassFunction()):

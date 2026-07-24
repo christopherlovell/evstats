@@ -1,12 +1,11 @@
-import sys
 import numpy as np
 
 from scipy import integrate
 
 import hmf
-import astropy
 
 import matplotlib.pyplot as plt
+
 
 def evs_hypersurface_pdf(mf = hmf.MassFunction(), V = 33510.321):
     """
@@ -30,7 +29,6 @@ def evs_hypersurface_pdf(mf = hmf.MassFunction(), V = 33510.321):
     N = V*n_tot
     phi_max = N*f*(F**(N-1))
     return phi_max
-
 
 
 def evs_bin_pdf(mf = hmf.MassFunction(), zmin=0., zmax=0.1, dz=0.01, mmin=12, mmax=18, dm = 0.01, fsky=1.):
@@ -114,7 +112,9 @@ def _computeNinbin(mf, zmin, zmax, lnmax=False, dz=0.01):
 
     if lnmax: mf.update(Mmax=lnmax)
 
-    zees = np.arange(zmin, zmax, dz, dtype='longdouble')  # z range
+    # endpoint-inclusive, fixed count: exact width every shell
+    nz = max(int(round((zmax - zmin) / dz)) + 1, 2)
+    zees = np.linspace(zmin, zmax, nz, dtype='longdouble')
 
     # calculate dvdz in advance to take advantage of vectorization
     dvdz = mf.cosmo.differential_comoving_volume(zees).value.astype('longdouble') * (4. * np.pi)
