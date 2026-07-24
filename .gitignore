@@ -1,5 +1,7 @@
 example/paper/plots/*.pdf
 example/paper/plots/*.gif
+example/paper/plots/*.png
+example/observables/data/*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
