@@ -35,7 +35,7 @@ low_z_colors = ['steelblue','lightskyblue','powderblue']
 colors = low_z_colors
 
 # Change strings for different model names manually
-lognormal_model = 'LogNormal_tau0.8_peak_age0.08'
+lognormal_model = 'LogNormal_tau0.7_peak_age0.08'
 dpl_model = 'DoublePowerLaw_peak_age0.2_alpha1_beta-1'
 
 
@@ -47,7 +47,7 @@ axes = axes.flatten()
 for ax, band in zip(axes, ['NIRCam.F277W', 'NIRCam.F115W', 'NIRCam.F444W', 'MIRI.F770W']):
 
     # Loads minimum tau
-    flux_grid_min = np.loadtxt(f"data/flux_grid_{band}_Exponential_tau-0.02.txt")
+    flux_grid_min = np.loadtxt(f"data/flux_grid_{band}_Exponential_tau-0.03.txt")
     CI_flux_min_list = []
     for i in redshift_idx:
         ci = compute_conf_ints(phi_max[i], flux_grid_min[:, i])
@@ -136,7 +136,7 @@ line3 = plt.Line2D((0,1),(0,0), color='coral', linestyle='--', linewidth=2)
 line4 = plt.Line2D((0,1),(0,0), color='mediumseagreen', linestyle='-.', linewidth=2)
 line_dummy = plt.Line2D((0,1),(0,0), color='white')
 leg = ax.legend(handles=[line1,line2,line3,line4,line_dummy], 
-           labels=['Exp Range', 'Exp bounds (τ=-0.02, -1.0)', 'LogNormal', 'DPL', ''],
+           labels=['Exp Range', 'Exp bounds (τ=-0.03, -1.0)', 'LogNormal', 'DPL', ''],
                 frameon=False, loc='upper right', fontsize=12, ncol=2)
 
 vp = leg._legend_box._children[-1]._children[0] 

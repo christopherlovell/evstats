@@ -66,8 +66,8 @@ def create_galaxy(z, m, grid, sfh_type, sfh_params):
 
     metal_dist = ZDist.Normal(mean=0.01, sigma=0.005)
     stars = Stars(
-        grid.log10age,
-        grid.metallicity,
+        grid.log10ages,
+        grid.metallicities,
         sf_hist=sfh,
         metal_dist=metal_dist,
         initial_mass=m * Msun
@@ -78,8 +78,8 @@ def create_galaxy(z, m, grid, sfh_type, sfh_params):
 # Hardcoded Values to loop through, MAYBE add constant, other types of exp. etc.
 # Should be able to comment out a model to remove, or add into params into here and if statement above
 sfh_models = {
-    "Exponential": [{"tau": tau * Gyr} for tau in [-0.02, -0.05, -0.1, -0.5, -1.0]],
-    "LogNormal": [{"tau": 0.3, "peak_age": 0.03 * Gyr}, {"tau": 0.5, "peak_age": 0.05 * Gyr}, {"tau": 0.8, "peak_age": 0.08 * Gyr}],
+    "Exponential": [{"tau": tau * Gyr} for tau in [-0.03, -0.05, -0.1, -0.3, -1.0]],
+    "LogNormal": [{"tau": 0.25, "peak_age": 0.03 * Gyr}, {"tau": 0.4, "peak_age": 0.05 * Gyr}, {"tau": 0.7, "peak_age": 0.08 * Gyr}],
     "DoublePowerLaw": [{"peak_age": 0.05 * Gyr, "alpha": 10, "beta": -10}, {"peak_age": 0.1 * Gyr, "alpha": 5, "beta": -5}, {"peak_age": 0.2 * Gyr, "alpha": 1, "beta": -1}]
 }
 
