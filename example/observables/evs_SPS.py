@@ -29,8 +29,8 @@ sfh_tag = "DoublePowerLaw_peak_age0.2_alpha1_beta-1"
 
 sps_grids = {
     "BC03":  f"{sfh_tag}_bc03-2016-Miles_chabrier-0.1,100",
-    "FSPS": f"{sfh_tag}_fsps-3.2-mistmiles_chabrier03-0.5,120",
-    "BPASS":f"{sfh_tag}_bpass-2.2.1-bin_chabrier03-0.1,100.0",
+    "FSPS": f"{sfh_tag}_fsps-3.2-mist-miles_chabrier03-0.5,120",
+    "BPASS":f"{sfh_tag}_bpass-2.2.1-bin_chabrier03-0.1,300.0",
 }
 
 

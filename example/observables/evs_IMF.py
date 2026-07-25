@@ -32,6 +32,7 @@ imf_grids = {
     "chabrier": f"{sfh_tag}_bc03-2016-Miles_chabrier-0.1,100",
     "salpeter": f"{sfh_tag}_bc03-2016-Miles_salpeter-0.1,100",
     "kroupa":   f"{sfh_tag}_bc03-2016-Miles_kroupa-0.1,100",
+    "bpass_neb": f"{sfh_tag}_bpass-2.2.1-bin_chabrier03-0.1,300.0_cloudy-c23.01-sps",
 }
 
 #z of BAGPIPES
@@ -96,6 +97,10 @@ ax.plot(z, CI_flux["kroupa"][:, 3],
         linestyle='--', color='mediumseagreen', linewidth=2,
         label='Kroupa IMF')
 
+ax.plot(z, CI_flux["bpass_neb"][:, 3],
+        linestyle='-', color='purple', linewidth=2.5,
+        label='BPASS + nebular')
+
 
 
 # Observed JWST sources
@@ -132,10 +137,11 @@ handles = [
     plt.Line2D([0], [0], color='coral', linestyle='--', linewidth=2.5),
     plt.Line2D([0], [0], color='steelblue', linestyle='--', linewidth=2.5),
     plt.Line2D([0], [0], color='mediumseagreen', linestyle='--', linewidth=2.5),
+    plt.Line2D([0], [0], color='purple', linestyle='-', linewidth=2.5),
     plt.Line2D([0], [0], color='orange', marker='o', linestyle='None'),
 ]
 
-labels = ['Chabrier', 'Salpeter', 'Kroupa', 'JWST candidates']
+labels = ['Chabrier', 'Salpeter', 'Kroupa', 'BPASS + nebular', 'JWST candidates']
 ax.legend(handles=handles, labels=labels, frameon=False, loc='upper right', fontsize=12, ncol=2)
 
 plt.savefig(f'plots/evs_{_obs_str}_F444W.png', bbox_inches='tight', dpi=200)
