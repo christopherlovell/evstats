@@ -53,7 +53,7 @@ ax0.plot(zref, CIref[:, 3], color='red', lw=1.8, ls='dotted',
          label='Behroozi+13 (linear extrap.)')
 
 ax0.set_ylim(8, 13)
-ax0.set_ylabel(r'$\mathrm{log_{10}}(M_{\mathrm{max}} \,/\, h^{-1}M_{\odot})$', size=15)
+ax0.set_ylabel(r'$\mathrm{log_{10}}(M_{\mathrm{max}} \,/\, M_{\odot})$', size=15)
 ax0.text(0.02, 0.05, r'$A = 38 \; \mathrm{arcmin}^2$', size=12, alpha=0.8,
          transform=ax0.transAxes)
 ax0.legend(frameon=False, loc='upper right', fontsize=11)

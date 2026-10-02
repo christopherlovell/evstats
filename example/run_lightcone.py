@@ -6,7 +6,9 @@ to data/ as HDF5. Downstream analysis scales this whole-sky grid to any survey
 sky fraction via evstats.evs (evs_bin_pdf(..., fsky=...)).
 
   behroozi : Behroozi+13, Planck15 (original EVS paper, Lovell+23).
-  yung     : Yung+24 GUREFT fit; valid z in [6, 19], log10(M h/Msun) in [6, 13].
+  yung     : Yung+24 GUREFT fit; valid z in [6, 19], log10(M/Msun) in [6, 13].
+
+Masses are h-less throughout (see evstats.evs).
 """
 import argparse
 import os
