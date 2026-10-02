@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import h5py
-from astropy.cosmology import Planck18 as cosmo
+from astropy.cosmology import Planck15 as cosmo
 from multiprocessing import Pool
 from unyt import Hz, Msun, Myr, erg, nJy, s, angstrom, Gyr
 

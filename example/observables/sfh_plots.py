@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize, LogNorm, ListedColormap
 from matplotlib.ticker import NullLocator
-from astropy.cosmology import Planck18 as cosmo
+from astropy.cosmology import Planck15 as cosmo
 from unyt import Gyr, Msun, angstrom
 
 from synthesizer.grid import Grid
