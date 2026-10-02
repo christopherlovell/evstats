@@ -65,6 +65,8 @@ def main():
     ap.add_argument('--dm', type=float, default=0.02, help='log10 mass step')
     ap.add_argument('--mmin', type=float, help='override log10 min mass (may extrapolate)')
     ap.add_argument('--mmax', type=float, help='override log10 max mass (may extrapolate)')
+    ap.add_argument('--zmin', type=float, help='override min redshift (may extrapolate)')
+    ap.add_argument('--zmax', type=float, help='override max redshift (may extrapolate)')
     ap.add_argument('--eh-extrap', type=lambda s: s.lower() == 'true', default=None,
                     help='transfer extrapolate_with_eh (true/false); default hmf')
     ap.add_argument('--procs', type=int, default=1,
@@ -77,6 +79,8 @@ def main():
     (zmin, zmax), (mmin, mmax) = p['zlim'], p['mlim']
     mmin = args.mmin if args.mmin is not None else mmin
     mmax = args.mmax if args.mmax is not None else mmax
+    zmin = args.zmin if args.zmin is not None else zmin
+    zmax = args.zmax if args.zmax is not None else zmax
 
     # linspace keeps edges exactly on [zmin, zmax] (arange can overshoot zmax)
     edges = np.linspace(zmin, zmax, int(round((zmax - zmin) / args.dz_bin)) + 1)
