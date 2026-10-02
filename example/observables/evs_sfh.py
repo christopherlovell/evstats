@@ -6,6 +6,7 @@ import matplotlib.patches as mpatches
 import astropy.units as u
 from evstats import evs
 from evstats.stats import compute_conf_ints
+from evstats.stellar import apply_fs_distribution
 
 
 with h5py.File('../data/evs_all.h5', 'r') as hf:
@@ -22,6 +23,12 @@ survey_area = 0.28 * u.degree**2
 fsky = float(survey_area / whole_sky)
 phi_max = evs._apply_fsky(N, f, F, fsky)
 redshift_idx = np.arange(len(z))
+
+# Stellar masses from the baryon fraction and a lognormal stellar fraction.
+mstar_pdf = np.vstack([apply_fs_distribution(p, log10m, f_b=0.16) for p in phi_max])
+
+# Fiducial SPS model, common to every SFH shown here.
+grid_tag = "bpass-2.2.1-bin_chabrier03-0.1,300.0_cloudy-c23.01-sps"
 
 # Each parametric form: fiducial grid (solid line) + parameter sweep (shaded range).
 forms = {
@@ -43,8 +50,8 @@ forms = {
 
 def median_ci(tag, band):
     """log10 of the median EVS flux (nJy) vs redshift for a flux grid."""
-    g = np.loadtxt(f"data/flux_grid_{band}_{tag}.txt")
-    ci = np.vstack([compute_conf_ints(phi_max[i], g[:, i]) for i in redshift_idx])[:, 3]
+    g = np.loadtxt(f"data/flux_grid_{band}_{tag}_{grid_tag}.txt")
+    ci = np.vstack([compute_conf_ints(mstar_pdf[i], log10m, g[:, i]) for i in redshift_idx])[:, 3]
     return np.log10(np.where(ci > 0, ci, 1e-30))
 
 
@@ -57,12 +64,10 @@ for ax, band in zip(axes, ['NIRCam.F115W', 'NIRCam.F277W', 'NIRCam.F444W']):
         ax.plot(z, median_ci(m["fid"], band), color=m["color"], lw=2.2, zorder=3)
 
     ax.set_xlim(2, 18)
-    ax.set_ylim(0, 8)
+    ax.set_ylim(-1, 8)
     ax.set_xlabel('$z$', size=12)
     ax.text(0.15, 0.95, band.split('.')[-1], size=12, color='black',
             va='top', transform=ax.transAxes)
-    for s in ("top", "right"):
-        ax.spines[s].set_visible(False)
 
 axes[0].set_ylabel(r"$\log_{10}(F_\nu \,/\, \mathrm{nJy})$", size=12)
 
