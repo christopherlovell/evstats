@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stats import uniform,norm,expon,truncnorm,lognorm,gaussian_kde
+from scipy.stats import uniform,norm,expon,lognorm,gaussian_kde
 
 
 def sample_halo_evs_pdf(pdf, _x, _N):
@@ -13,51 +13,61 @@ def sample_halo_evs_pdf(pdf, _x, _N):
     return randdist
 
 
-def apply_fs_distribution(pdf, _x, method='lognormal', _N=int(1e4), f_b=0.16):
+def log10_fs_pdf(v, method='lognormal'):
     """
-    Use Monte Carlo sampling to estimate the combined pdf of an EVS distribution and an f_s distribution.
-    
-    First, sample from EVS PDF (phi), then sample from f_s PDF (uniform, gaussian...). 
-    Multiply together to get distribution of product phi * f_s .
-    See: https://stackoverflow.com/questions/29095070/how-to-simulate-from-an-arbitrary-continuous-probability-distribution
-    
+    PDF of v = log10(f_s), for the f_s distributions truncated to 0 < f_s <= 1.
+
+    Parameters
+    ----------
+    v (array): log10 stellar fraction, uniformly spaced and <= 0
+    method (str): parametric form of f_s pdf, one of 'lognormal', 'normal', 'uniform' or 'exponential'
+
+    Returns
+    -------
+    (array): normalised pdf of v
+
+    """
+    f_s = 10**v
+
+    if method=='normal': p = norm.pdf(f_s, loc=0.2, scale=0.1)
+    elif method=='uniform': p = uniform.pdf(f_s)
+    elif method=='exponential': p = expon.pdf(f_s, scale=0.1)
+    elif method=='lognormal': p = lognorm.pdf(f_s, s=1, scale=np.exp(-2))
+    else: raise ValueError("No valid method provided");
+
+    p = p * f_s * np.log(10)  # Jacobian, df_s / dv
+    return p / np.trapezoid(p, v)  # truncation to f_s <= 1 by renormalisation
+
+
+def apply_fs_distribution(pdf, _x, method='lognormal', f_b=0.16, vmin=-8.):
+    """
+    Combine an EVS distribution with an f_s distribution to give the stellar mass PDF.
+
+    The stellar mass is the product M_star = f_b * f_s * M_halo, which in log
+    space is a sum, so the PDF is the convolution of the halo EVS PDF with the
+    PDF of log10(f_s), shifted by the baryon fraction.
+
     Parameters
     ----------
     pdf (array): probability density function on x
-    x (array): coordinates of pdf
-    method (str): parametric form of f_s pdf, one of 'lognormal', 'normal', 'uniform' or 'exponential'
-    _N (int): number of MC samples
+    _x (array): log10 halo mass coordinates of pdf, uniformly spaced
+    method (str): parametric form of f_s pdf, see `log10_fs_pdf`
     f_b (float): additional normalisation constant to apply (e.g. baryon fraction)
-    
+    vmin (float): lower limit on log10(f_s) to include in the convolution
+
     Returns
     -------
-    pdf (array): product of evs and f_s pdfs
-    
+    pdf (array): stellar mass pdf, on the same coordinates _x
+
     """
-    
-    # ## stellar mass CIs
-    # cumpdf = np.cumsum(pdf) / np.cumsum(pdf)[-1]
-    # randv = np.random.uniform(size=_N)
-    # idx1 = np.searchsorted(cumpdf, randv)
-    # idx0 = np.where(idx1==0, 0, idx1-1)
-    # idx1[idx0==0] = 1  # force first index if at edge of domain
-    # frac1 = (randv - cumpdf[idx0]) / (cumpdf[idx1] - cumpdf[idx0])
-    # randdist = _x[idx0]*(1-frac1) + _x[idx1]*frac1  # random samples from halo EVS PDF
-    randdist = sample_halo_evs_pdf(pdf, _x, _N)
-    
-    ## sample from f_s distribution
-    if method=='normal': 
-        myclip_a = 0; myclip_b = 1; my_mean = 0.2; my_std = 0.1 ## params for truncated log norm
-        _a, _b = (myclip_a - my_mean) / my_std, (myclip_b - my_mean) / my_std
-        f_s = truncnorm.rvs(_a, _b, loc = my_mean, scale = my_std, size=_N)
-    elif method=='uniform': f_s = uniform.rvs(size=_N, loc=0, scale=1)  # U[0,1]
-    elif method=='exponential': f_s = expon.rvs(size=_N, scale=0.1) 
-    elif method=='lognormal': f_s = _trunc_lognormal(-2, 1, N=_N) 
-    else: raise ValueError("No valid method provided");
-    
-    mstar_samp = np.log10(10**randdist * f_s * f_b) # samples from mstar
-    kernel = gaussian_kde(mstar_samp, bw_method=0.08)
-    return kernel.pdf(_x)
+    dx = _x[1] - _x[0]
+    v = np.arange(vmin, dx / 2, dx)  # log10(f_s), up to and including zero
+    kernel = log10_fs_pdf(v, method)
+
+    conv = np.convolve(pdf, kernel) * dx  # starts at _x[0] + v[0] + log10(f_b)
+    i0 = int(round((-v[0] - np.log10(f_b)) / dx))
+    conv = np.append(conv, np.zeros(max(0, i0 + len(_x) - len(conv))))
+    return conv[i0:i0 + len(_x)]
 
 
 def _trunc_lognormal(mean,sigma,N,lolim=0,hilim=1):
