@@ -19,8 +19,11 @@ from evstats import stats
 from evstats import stellar
 ```
 
-The star-formation-history module (`evstats.sfr`) has extra dependencies
-(`unyt` and `cosmos-synthesizer`). Install them with:
+The star-formation-history module (`evstats.sfr`) provides
+`mass_growth_track` / `plot_mass_growth_track`, which project an observed
+stellar mass back in redshift for an assumed (parametric or binned) star
+formation history, for comparison against the EVS contours. It has extra
+dependencies (`unyt` and `cosmos-synthesizer`). Install them with:
 
 ```
 pip install ".[sfr]"
