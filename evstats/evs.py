@@ -15,7 +15,7 @@ def evs_hypersurface_pdf(mf = hmf.MassFunction(), V = 33510.321):
     Parameters
     ----------
     mf : mass function, from `hmf` package
-    V : volume (default: a sphere with radius 20 Mpc)
+    V : volume in Mpc^3 (default: a sphere with radius 20 Mpc)
 
     Returns
     -------
@@ -23,9 +23,10 @@ def evs_hypersurface_pdf(mf = hmf.MassFunction(), V = 33510.321):
 
     """
 
-    n_tot = integrate.trapezoid(mf.dndlog10m, np.log10(mf.m))
-    f = mf.dndlog10m[:-1] / n_tot
-    F = integrate.cumulative_trapezoid(mf.dndlog10m, np.log10(mf.m)) / n_tot
+    # hmf works in h-units; convert to h-less to match the volume (see `_dNdlnmdz`)
+    n_tot = integrate.trapezoid(mf.dndlog10m * mf.cosmo.h**3, np.log10(mf.m))
+    f = mf.dndlog10m[:-1] * mf.cosmo.h**3 / n_tot
+    F = integrate.cumulative_trapezoid(mf.dndlog10m * mf.cosmo.h**3, np.log10(mf.m)) / n_tot
     N = V*n_tot
     phi_max = N*f*(F**(N-1))
     return phi_max
@@ -40,16 +41,16 @@ def evs_bin_pdf(mf = hmf.MassFunction(), zmin=0., zmax=0.1, dz=0.01, mmin=12, mm
     zmin : z minimum
     zmax : z maximum
     dz: delta z
-    mmin: mass minimum (log10 (h^{-1} M_{\sol}) )
-    mmax: mass maximum (log10 (h^{-1} M_{\sol}) )
-    dm: delta m (log10 (h^{-1} M_{\sol}) )
+    mmin: mass minimum (log10 (M_{\sol}) )
+    mmax: mass maximum (log10 (M_{\sol}) )
+    dm: delta m (dex)
     fsky: fraction of sky
 
     Returns
     -------
     phi: probability density function
-    ln10m_range: corresponding mass values for PDF (log10 (h^{-1} M_{\sol}) )
-    
+    ln10m_range: corresponding mass values for PDF (log10 (M_{\sol}) )
+
     """
 
     N, f, F, ln10m_range = _evs_bin(mf=mf, zmin=zmin, zmax=zmax, dz=dz, mmin=mmin, mmax=mmax, dm=dm)
@@ -79,33 +80,36 @@ def _evs_bin(mf = hmf.MassFunction(), zmin=0., zmax=0.1, dz=0.01, mmin=12, mmax=
     zmin : z minimum
     zmax : z maximum
     dz: delta z
-    mmin: mass minimum (log10 (h^{-1} M_{\sol}) )
-    mmax: mass maximum (log10 (h^{-1} M_{\sol}) )
-    dm: delta m (log10 (h^{-1} M_{\sol}) )
+    mmin: mass minimum (log10 (M_{\sol}) )
+    mmax: mass maximum (log10 (M_{\sol}) )
+    dm: delta m (dex)
 
     Returns
     -------
     N (float)
     f (array)
     F (array)
-    ln10m_range (array)
-    
+    ln10m_range (array), log10 (M_{\sol})
+
     """
 
-    mf.update(Mmin=mmin, Mmax=mmax, dlog10m=dm)
+    # masses are h-less on the interface, but hmf works in h^{-1} M_sol
+    lg_h = np.log10(mf.cosmo.h)
+
+    mf.update(Mmin=mmin+lg_h, Mmax=mmax+lg_h, dlog10m=dm)
 
     N = _computeNinbin(mf=mf, zmin=zmin, zmax=zmax, dz=dz)
 
     # need to set lower limit slightly higher otherwise hmf complains.
     # should have no impact on F if set sufficiently low.
-    ln10m_range = np.log10(mf.m[np.log10(mf.m) >= mmin+1])
+    ln10m_range = np.log10(mf.m[np.log10(mf.m) >= mmin+lg_h+1])
 
     F = np.array([_computeNinbin(mf=mf, zmin=zmin, zmax=zmax, lnmax=lnmax, dz=dz) \
      for lnmax in ln10m_range])
 
     f = np.gradient(F, mf.dlog10m)
-    
-    return N, f, F, ln10m_range
+
+    return N, f, F, ln10m_range - lg_h
 
 
 def _computeNinbin(mf, zmin, zmax, lnmax=False, dz=0.01):
@@ -127,7 +131,9 @@ def _computeNinbin(mf, zmin, zmax, lnmax=False, dz=0.01):
 
 def _dNdlnmdz(z, mf, dvdz):
     mf.update(z=z)
-    return integrate.trapezoid(mf.dndlnm.astype('longdouble') * dvdz, np.log(mf.m))
+    # dndlnm is in h^3 Mpc^-3, dvdz in Mpc^3; convert the former to h-less units
+    return integrate.trapezoid(mf.dndlnm.astype('longdouble') * mf.cosmo.h**3 * dvdz,
+                               np.log(mf.m))
 
 
 if __name__ == '__main__':
@@ -136,8 +142,8 @@ if __name__ == '__main__':
     mass_function = hmf.MassFunction()
 
     # set cosmology using astropy
-    from astropy.cosmology import Planck13
-    mass_function.cosmo_model = Planck13
+    from astropy.cosmology import Planck15
+    mass_function.cosmo_model = Planck15
 
     # set redshift
     mass_function.z = 0.0
@@ -149,9 +155,9 @@ if __name__ == '__main__':
 
     phi_max = evs_hypersurface_pdf(mf = mass_function)
 
-    plt.loglog(mass_function.m[:-1], phi_max)
+    plt.loglog(mass_function.m[:-1] / mass_function.cosmo.h, phi_max)
     plt.ylim(10**-4,1)
-    plt.xlabel(r'Mass $[M_{\odot}h^{-1}]$')
+    plt.xlabel(r'Mass $[M_{\odot}]$')
     plt.ylabel(r'$\phi(M_{max})$')
 
     plt.show()
