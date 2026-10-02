@@ -45,7 +45,7 @@ for i, z in enumerate(zeds):
     intcum = integrate.cumtrapz(pdf, log10m, initial=0.)
     CI_mhalo[i] = log10m[[np.max(np.where(intcum < lim)) for lim in lims]]
     
-    mstar_pdf = apply_fs_distribution(pdf, log10m, method='lognormal', _N=_N, f_b=f_b)
+    mstar_pdf = apply_fs_distribution(pdf, log10m, method='lognormal', f_b=f_b)
     CI_mstar[i] = compute_conf_ints(mstar_pdf, log10m)
 
 

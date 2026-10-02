@@ -27,7 +27,7 @@ f_b = 0.16
 CI_mhalo = compute_conf_ints(phi_max, log10m)
 CI_baryon = np.log10(10**CI_mhalo * f_b)
 
-mstar_pdf = np.vstack([apply_fs_distribution(_phi_max, log10m, _N=int(1e5), method='lognormal') \
+mstar_pdf = np.vstack([apply_fs_distribution(_phi_max, log10m, method='lognormal') \
         for _phi_max in phi_max])
 CIs = compute_conf_ints(mstar_pdf, log10m)
 

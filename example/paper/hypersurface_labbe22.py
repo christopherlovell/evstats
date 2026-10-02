@@ -27,19 +27,19 @@ f_b = 0.16
 CI_mhalo = compute_conf_ints(phi_max, log10m)
 CI_baryon = np.log10(10**CI_mhalo * f_b)
 
-# mstar_pdf = np.vstack([
-#     apply_fs_distribution(_phi_max, log10m, _N=int(1e3), method='lognormal') \
-#     for _phi_max in phi_max
-# ])
-
 mstar_pdf = np.vstack([
-    apply_halo_dependent_fs(_phi_max, log10m, _N=int(1e4)) \
+    apply_fs_distribution(_phi_max, log10m, method='lognormal') \
     for _phi_max in phi_max
 ])
 
+# mstar_pdf = np.vstack([
+#     apply_halo_dependent_fs(_phi_max, log10m, _N=int(1e4)) \
+#     for _phi_max in phi_max
+# ])
+
 CIs = compute_conf_ints(mstar_pdf, log10m)
 
-fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+fig, ax = plt.subplots(1, 1, figsize=(5, 5), layout="constrained")
 colors = ['brown','lightcoral','mistyrose'] # ['steelblue','lightskyblue','powderblue']
 
 ax.fill_between(z, CIs[:,0], CIs[:,6], alpha=1, color=colors[0])
