@@ -73,7 +73,14 @@ ages_yr = np.linspace(0, max_age.to_value("yr"), 500, endpoint=False)
 age_myr = ages_yr / 1e6
 dage_myr = age_myr[1] - age_myr[0]
 
-fig, axes = plt.subplots(2, 3, figsize=(13, 7.6), layout="constrained")
+# SFHs are plotted against cosmic time (t = 0 at the Big Bang), so the truncation
+# at the age of the Universe is visible; the twin axis labels the same points in z.
+t_obs_myr = max_age.to_value("Myr")
+time_myr = t_obs_myr - age_myr
+Z_TICKS = [30, 20, 15, 12, 10, 9]
+t_ticks = [cosmo.age(zt).to_value("Myr") for zt in Z_TICKS]
+
+fig, axes = plt.subplots(2, 3, figsize=(13, 8.1), layout="constrained")
 for j, (sfh_type, m) in enumerate(sfh_models.items()):
     ax_sfh, ax_sed = axes[0, j], axes[1, j]
     cmap = ListedColormap(plt.get_cmap(m["cmap"])(np.linspace(0.25, 0.95, 256)))
@@ -84,15 +91,21 @@ for j, (sfh_type, m) in enumerate(sfh_models.items()):
 
     for val, params in zip(m["vals"], m["params"]):
         c = cmap(norm(val))
-        ax_sfh.plot(age_myr, sfr_curve(sfh_type, params), color=c, lw=1.1, alpha=0.55)
+        ax_sfh.plot(time_myr, sfr_curve(sfh_type, params), color=c, lw=1.1, alpha=0.55)
         ax_sed.plot(lam_um, sed_curve(sfh_type, params) / ref, color=c, lw=1.1, alpha=0.55)
-    ax_sfh.plot(age_myr, sfr_curve(sfh_type, m["fid"]), color="k", lw=2.4, label="fiducial")
+    ax_sfh.plot(time_myr, sfr_curve(sfh_type, m["fid"]), color="k", lw=2.4, label="fiducial")
     ax_sed.plot(lam_um, lnu_fid / ref, color="k", lw=2.4, label="fiducial")
 
-    ax_sfh.set_xlim(0, 250)
+    ax_sfh.set_xlim(t_obs_myr, 0)
     ax_sfh.set_ylim(bottom=0)
-    ax_sfh.set_xlabel(r"$\mathrm{age} \,/\, \mathrm{Myr}$", size=12)
+    ax_sfh.set_xlabel(r"$t \,/\, \mathrm{Myr}$", size=12)
     ax_sfh.legend(frameon=False, fontsize=11, loc="upper right")
+
+    ax_z = ax_sfh.twiny()
+    ax_z.set_xlim(ax_sfh.get_xlim())
+    ax_z.set_xticks(t_ticks)
+    ax_z.set_xticklabels([str(zt) for zt in Z_TICKS], size=10)
+    ax_z.set_xlabel("$z$", size=12)
 
     ax_sed.set_xscale("log")
     ax_sed.set_yscale("log")
@@ -103,12 +116,10 @@ for j, (sfh_type, m) in enumerate(sfh_models.items()):
     ax_sed.xaxis.set_minor_locator(NullLocator())
     ax_sed.set_xlabel(r"rest wavelength $\,/\, \mu\mathrm{m}$", size=12)
 
-    for ax in (ax_sfh, ax_sed):
-        for s in ("top", "right"):
-            ax.spines[s].set_visible(False)
-
-    cb = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap, norm=norm), ax=ax_sfh,
-                      location="top", pad=0.02, fraction=0.06)
+    # Colourbar below the column; the top of the SFH panel is taken by the
+    # redshift axis. The sweep colours apply to both rows.
+    cb = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap, norm=norm), ax=ax_sed,
+                      location="bottom", pad=0.02, fraction=0.06)
     cb.set_label(f"{sfh_type}    ({m['clabel']})", size=12)
     cb.ax.axvline(m["fid_val"], color="k", lw=1.6)
 
