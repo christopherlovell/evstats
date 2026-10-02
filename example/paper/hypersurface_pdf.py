@@ -23,7 +23,7 @@ CI_mhalo = [None for z in zeds]
 for i, z in enumerate(zeds):
     mass_function.update(z=z)
     pdf = evs.evs_hypersurface_pdf(mf=mass_function, V=V**3)
-    intcum = integrate.cumtrapz(pdf, log10m, initial=0.)  
+    intcum = integrate.cumulative_trapezoid(pdf, log10m, initial=0.)  
     CI_mhalo[i] = log10m[[np.max(np.where(intcum < lim)) for lim in lims]]
 
 
