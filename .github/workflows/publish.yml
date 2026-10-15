@@ -16,7 +16,7 @@ jobs:
       contents: write   # tag and GitHub release
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0
 
       - name: Check whether this version is new
         id: version
