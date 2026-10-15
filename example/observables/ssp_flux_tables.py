@@ -2,7 +2,7 @@
 
 The flux is linear in the SFH, so for any SFH binned onto the grid ages (unit mass),
 flux per unit mass = m @ T[iz]. Same grid, emission model, filters and IGM as
-evs_file_generator.py; the fiducial SFHs reproduce the flux grids exactly.
+evs_file_generator.py; the fiducial SFHs reproduce its flux tables exactly.
 """
 import numpy as np
 import h5py
@@ -22,7 +22,6 @@ BANDS = ["JWST/NIRCam.F115W", "JWST/NIRCam.F150W", "JWST/NIRCam.F200W",
          "JWST/MIRI.F770W"]
 
 with h5py.File("../data/evs_all.h5", "r") as hf:
-    log10m = hf["log10m"][:]
     z = hf["z"][:]
 
 grid = Grid(GRID, grid_dir="/home/chris/code/synthesizer_grids/grids",
@@ -56,12 +55,12 @@ for i, zval in enumerate(z):
         sfzh[j] = mdist
         T[i, j] = photometry(Stars(grid.log10ages, grid.metallicities, sfzh=sfzh, initial_mass=1 * Msun), zval)
 
-# check against the flux grids for the fiducial exponential SFH, in bands above the Lyman break
+# check against the flux tables for the fiducial exponential SFH, in bands above the Lyman break
 fid = np.array([stars(zval).sf_hist @ T[i] for i, zval in enumerate(z)])
-fg = np.stack([np.loadtxt(f"data/flux_grid_{b.split('/')[-1]}_Exponential_tau-0.1_{GRID}.txt")[0]
-               for b in BANDS], axis=1) / 10 ** log10m[0]
+fg = np.stack([np.loadtxt(f"data/flux_per_mass_{b.split('/')[-1]}_Exponential_tau-0.1_{GRID}.txt")
+               for b in BANDS], axis=1)
 ok = fg > 1e-3 * fg.max(axis=1, keepdims=True)
-print(f"max |log10(table / flux grid)| = {np.abs(np.log10(fid[ok] / fg[ok])).max():.1e}")
+print(f"max |log10(table / flux table)| = {np.abs(np.log10(fid[ok] / fg[ok])).max():.1e}")
 
 np.savez(f"data/ssp_flux_tables_{GRID}.npz", T=T, z=z, log10ages=grid.log10ages,
          bands=[b.split("/")[-1] for b in BANDS])

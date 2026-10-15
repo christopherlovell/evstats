@@ -41,9 +41,9 @@ lam_um = grid.lam.to("um").value
 def sed_curve(sfh_type, p):
     """Rest-frame L_nu per unit formed mass (erg/s/Hz)."""
     stars = Stars(grid.log10ages, grid.metallicities, sf_hist=make_sfh(sfh_type, p),
-                  metal_dist=ZDist.Normal(mean=0.01, sigma=0.005), initial_mass=1 * Msun)
+                  metal_dist=ZDist.DeltaConstant(metallicity=0.01), initial_mass=1 * Msun)
     sed = galaxy(stars=stars, redshift=9).stars.get_spectra(model)
-    return np.asarray(getattr(sed.lnu, "value", sed.lnu), float)
+    return sed.lnu.value
 
 
 # Fiducial + a 10-model sweep spanning the comparison limits (paper Sec 3.1).

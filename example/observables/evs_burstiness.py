@@ -12,6 +12,7 @@ from functools import lru_cache
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
+from scipy import integrate
 import astropy.units as u
 from astropy.cosmology import Planck15 as cosmo
 from unyt import Gyr
@@ -51,9 +52,9 @@ FORMS = {
 
 
 @lru_cache
-def flux_grid(tag, band=BAND):
+def flux_per_mass(tag, band=BAND):
     inst = "MIRI" if band == "F770W" else "NIRCam"
-    return np.loadtxt(f"data/flux_grid_{inst}.{band}_{tag}_{GRID}.txt")
+    return np.loadtxt(f"data/flux_per_mass_{inst}.{band}_{tag}_{GRID}.txt")
 
 
 def delta(i, make, sig=SIG, tau=TAU):
@@ -62,7 +63,7 @@ def delta(i, make, sig=SIG, tau=TAU):
     sub = np.unique(np.concatenate([edges[edges < tmax], np.arange(0, tmax, 5e5), [tmax]]))
     fine = np.linspace(0, tmax, 400001)
     sfr = make(tmax / 1e9 * Gyr).get_sfr(fine)
-    cum = np.concatenate([[0], np.cumsum(0.5 * (sfr[1:] + sfr[:-1]) * np.diff(fine))])
+    cum = integrate.cumulative_trapezoid(sfr, fine, initial=0)
     mu = np.diff(np.interp(sub, fine, cum))                     # smooth mass per sub-interval
     mid = 0.5 * (sub[1:] + sub[:-1])
     j = np.searchsorted(edges, mid) - 1                          # grid age bin of each sub-interval
@@ -111,10 +112,10 @@ def mstar_pdf(i, D, lm, sky):
 
 def flux_ci(i, D=None, lm=None, tag=FORMS["Exponential"][1], sky=COSMOS, fstar_one=False):
     """EVS flux confidence intervals (nJy); fstar_one gives the f* = 1 limit, at fixed mass f_b M_h."""
-    g = flux_grid(tag)[:, i]
+    g = 10**log10m * flux_per_mass(tag)[i]
     if fstar_one:
         pdf = halo_pdf(i, None if D is None else D - lm, sky)
-        return compute_conf_ints(pdf, log10m, np.interp(log10m + np.log10(F_B), log10m, g))
+        return compute_conf_ints(pdf, log10m, F_B * g)
     return compute_conf_ints(mstar_pdf(i, D, lm, sky), log10m, g)
 
 

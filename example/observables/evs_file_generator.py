@@ -1,10 +1,11 @@
-"""Generate flux grids over SFH parameterisations, SPS models and metallicities.
+"""Generate flux tables over SFH parameterisations, SPS models and metallicities.
 
-One flux grid per (SFH, metallicity, SPS model, JWST band), written to
-data/flux_grid_{band}_{sfh_tag}{z_tag}_{grid_name}.txt. Uses the locally
-installed grids (bpass here is 0.1,300.0; fsps is 0.08,100 to match the bc03
-IMF range); incident
-emission is stellar only, intrinsic includes photoionisation.
+One table per (SFH, metallicity, SPS model, JWST band) of the flux per unit
+stellar mass formed (nJy / Msun) at each redshift of ../data/evs_all.h5, written
+to data/flux_per_mass_{band}_{sfh_tag}{z_tag}_{grid_name}.txt. Flux is linear
+in mass, so a galaxy of mass M has M times this flux. Uses the locally installed
+grids (bpass here is 0.1,300.0; fsps is 0.08,100 to match the bc03 IMF range);
+incident emission is stellar only, intrinsic includes photoionisation.
 
 Usage: evs_file_generator.py [SFH_SUBSTRING] [GRID_SUBSTRING] [METALLICITY]
 
@@ -78,12 +79,11 @@ grid_filter = sys.argv[2] if len(sys.argv) > 2 else ""
 z_filter = sys.argv[3] if len(sys.argv) > 3 else ""
 
 with h5py.File("../data/evs_all.h5", "r") as hf:
-    log10m = hf["log10m"][:]
     z = hf["z"][:]
 
 
 def create_galaxy(zval, m, grid, make_sfh, zdist):
-    sfh = make_sfh(cosmo.age(zval) * Gyr)
+    sfh = make_sfh(cosmo.age(zval).value * Gyr)
     stars = Stars(grid.log10ages, grid.metallicities, sf_hist=sfh,
                   metal_dist=zdist, initial_mass=m * Msun)
     return galaxy(stars=stars, redshift=zval)
@@ -108,18 +108,18 @@ for grid_name, make_model in GRIDS:
             z_tag = "" if Z == 0.01 else f"_Z{Z}"
             zdist = ZDist.DeltaConstant(metallicity=Z)
 
-            flux = {b: np.zeros((len(log10m), len(z))) for b in BANDS}
+            flux = {b: np.zeros(len(z)) for b in BANDS}
             for i, zval in enumerate(z):
-                gal = create_galaxy(zval, 10 ** log10m[0], grid, make_sfh, zdist)
+                gal = create_galaxy(zval, 1, grid, make_sfh, zdist)
                 sed = gal.stars.get_spectra(model)
                 sed.get_fnu(cosmo, zval, igm=Madau96)
                 photo = sed.get_photo_fnu(fc)
                 for b in BANDS:
-                    flux[b][:, i] = photo[b].value * 10 ** (log10m - log10m[0])
+                    flux[b][i] = photo[b].value
 
             for b in BANDS:
                 np.savetxt(
-                    f"data/flux_grid_{b.split('/')[-1]}_{sfh_tag}{z_tag}_"
+                    f"data/flux_per_mass_{b.split('/')[-1]}_{sfh_tag}{z_tag}_"
                     f"{grid_name}.txt", flux[b]
                 )
-            print("wrote grids for", sfh_tag + z_tag, grid_name, flush=True)
+            print("wrote tables for", sfh_tag + z_tag, grid_name, flush=True)

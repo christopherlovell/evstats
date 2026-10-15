@@ -20,7 +20,7 @@ _obs_str = 'confs'
 whole_sky = (41252.96 * u.deg**2).to(u.arcmin**2)
 survey_area = 0.28 * u.deg**2
 fsky = float(survey_area / whole_sky)
-phi_max = evs._apply_fsky(N, f, F, fsky)
+phi_max = evs.apply_fsky(N, f, F, fsky)
 redshift_idx = np.arange(len(z))
 
 # Stellar masses from the baryon fraction and a lognormal stellar fraction.
@@ -59,9 +59,9 @@ obs_data = {
 
 def flux_limits(band):
     """log10 EVS flux (nJy): confidence intervals, and the f_star = 1 limit."""
-    g = np.loadtxt(f"data/flux_grid_{band}_{sps_tag}.txt")
-    ci = np.vstack([compute_conf_ints(mstar_pdf[i], log10m, g[:, i]) for i in redshift_idx])
-    fs1 = 10**mstar_fs1 * g[0] / 10**log10m[0]  # flux is linear in stellar mass
+    fpm = np.loadtxt(f"data/flux_per_mass_{band}_{sps_tag}.txt")
+    ci = np.vstack([compute_conf_ints(mstar_pdf[i], log10m, 10**log10m * fpm[i]) for i in redshift_idx])
+    fs1 = 10**mstar_fs1 * fpm  # flux is linear in stellar mass
     return (np.log10(np.where(ci > 0, ci, 1e-30)),
             np.log10(np.where(fs1 > 0, fs1, 1e-30)))
 

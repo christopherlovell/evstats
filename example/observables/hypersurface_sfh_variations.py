@@ -27,7 +27,7 @@ _obs_str = f'tau_{band}'
 whole_sky = (41252.96 * u.deg**2).to(u.arcmin**2)
 survey_area = 0.28 * u.degree**2
 fsky = float(survey_area / whole_sky)
-phi_max = evs._apply_fsky(N, f, F, fsky)
+phi_max = evs.apply_fsky(N, f, F, fsky)
 f_b = 0.156
 
 CI_mhalo = compute_conf_ints(phi_max, log10m)
@@ -58,7 +58,7 @@ cmap = mpl.colormaps['viridis']
 colors = cmap(np.linspace(0, 1, 5))
 
 for i, tau in enumerate([-20, -50, -100, -500, -1000]): 
-    flux_grid = np.loadtxt(f"data/flux_grid_{band}_tau_m{-1 * tau}.txt")
+    flux_grid = 10**log10m[:, None] * np.loadtxt(f"data/flux_per_mass_{band}_tau_m{-1 * tau}.txt")
     CI_flux = np.log10(np.vstack([compute_conf_ints(phi_max[i], flux_grid[:, i]) for i in redshift_idx]))
 
     # ax.fill_between(z, CI_flux[:,0], CI_flux[:,6], alpha=1, color=colors[0])

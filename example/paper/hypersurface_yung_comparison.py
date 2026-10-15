@@ -21,7 +21,7 @@ def halo_cis(fname):
     """Per-redshift most-massive-halo mass CIs (and z grid) for one EVS grid."""
     with h5py.File(fname, 'r') as hf:
         log10m, f, F, N, z = (hf[k][:] for k in ('log10m', 'f', 'F', 'N', 'z'))
-    return z, compute_conf_ints(np.asarray(evs._apply_fsky(N, f, F, fsky), float), log10m)
+    return z, compute_conf_ints(np.asarray(evs.apply_fsky(N, f, F, fsky), float), log10m)
 
 
 models = {

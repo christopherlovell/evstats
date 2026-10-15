@@ -21,7 +21,7 @@ whole_sky = (41252.96 * u.deg**2).to(u.arcmin**2)
 survey_area = 2.3 * u.deg**2
 fsky = float(survey_area / whole_sky)
 
-phi_max = evs._apply_fsky(N, f, F, fsky)
+phi_max = evs.apply_fsky(N, f, F, fsky)
 
 f_b = 0.16
 CI_mhalo = compute_conf_ints(phi_max, log10m)

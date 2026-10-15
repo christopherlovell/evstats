@@ -1,11 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 from scipy import integrate
-from unyt import Msun
 from astropy.cosmology import Planck15
-
-from synthesizer.parametric import Stars
 
 
 def halo_mass_accretion_rate(mvir, z, cosmo=Planck15):
@@ -68,6 +64,10 @@ def average_sfr_over_window(sfh, total_mass, window_myr, metal_dist):
         Mean SFR over [0, window_myr] in Msun/yr (per unit mass if
         sfh.sfr is per unit mass).
     """
+    # optional dependencies: pip install "evstats[observables]"
+    from unyt import Msun
+    from synthesizer.parametric import Stars
+
     if window_myr <= 0:
         return np.nan    
 
@@ -219,6 +219,7 @@ def plot_mass_growth_track(
     ax : matplotlib axis
     """
     if ax is None:
+        import matplotlib.pyplot as plt  # optional: pip install "evstats[examples]"
         _, ax = plt.subplots()
 
     z, log10_mstar_z = mass_growth_track(

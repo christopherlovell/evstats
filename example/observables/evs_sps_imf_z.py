@@ -19,7 +19,7 @@ with h5py.File('../data/evs_all.h5', 'r') as hf:
 whole_sky = (41252.96 * u.deg**2).to(u.arcmin**2)
 survey_area = 0.28 * u.deg**2
 fsky = float(survey_area / whole_sky)
-phi_max = evs._apply_fsky(N, f, F, fsky)
+phi_max = evs.apply_fsky(N, f, F, fsky)
 redshift_idx = np.arange(len(z))
 
 # Stellar masses from the baryon fraction and a lognormal stellar fraction.
@@ -67,9 +67,9 @@ FLUX_CUT = 1.0  # nJy
 
 
 def log10_median(tag, band):
-    """log10 of the median EVS flux (nJy) vs redshift for a flux grid."""
-    g = np.loadtxt(f"data/flux_grid_{band}_{tag}.txt")
-    ci = np.vstack([compute_conf_ints(mstar_pdf[i], log10m, g[:, i]) for i in redshift_idx])[:, 3]
+    """log10 of the median EVS flux (nJy) vs redshift for a flux-per-mass table."""
+    fpm = np.loadtxt(f"data/flux_per_mass_{band}_{tag}.txt")
+    ci = np.vstack([compute_conf_ints(mstar_pdf[i], log10m, 10**log10m * fpm[i]) for i in redshift_idx])[:, 3]
     return np.where(ci > FLUX_CUT, np.log10(np.maximum(ci, FLUX_CUT)), np.nan)
 
 

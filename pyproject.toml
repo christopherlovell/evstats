@@ -28,14 +28,20 @@ classifiers = [
 dependencies = [
     "numpy>=2.0",
     "scipy>=1.6",
-    "hmf",
+    # hmf 3.7 changed its defaults, shifting the mass function; example/data uses 3.6
+    "hmf>=3.5,<3.7",
     "astropy",
-    "matplotlib",
 ]
 
 [project.optional-dependencies]
-# Star-formation-history and observables module (evstats.sfr) extras
-sfr = [
+# Plotting, and reading the tabulated EVS in example/
+examples = [
+    "matplotlib",
+    "h5py",
+]
+# Synthetic photometry (example/observables, sfr.average_sfr_over_window)
+observables = [
+    "evstats[examples]",
     "unyt",
     "cosmos-synthesizer",
 ]

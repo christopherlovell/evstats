@@ -40,7 +40,7 @@ def compute_conf_ints(pdf, x, y=None, lims = [0.0013498980, 0.0227501319, 0.1586
     return np.interp(lims, cdf / cdf[-1], coord)
 
 
-def eddington_bias(m, m_err, mf = hmf.MassFunction()):
+def eddington_bias(m, m_err, mf = None):
     """
     Calculate masses corrected for eddington bias.
     
@@ -51,10 +51,13 @@ def eddington_bias(m, m_err, mf = hmf.MassFunction()):
     Args:
     m (array): object masses in log base 10
     m_err (array): object mass errors in log base 10
-    
+    mf: mass function, from `hmf` package (default: `hmf.MassFunction()`)
+
     Returns:
-    (array): corrected masses 
+    (array): corrected masses
     """
+    if mf is None: mf = hmf.MassFunction()
+
     m_err_ln = np.log(10**(m+np.mean(m_err,axis=0))) - np.log(10**m)
     
     epsilon = np.zeros(len(m))

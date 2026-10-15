@@ -22,7 +22,7 @@ _obs_str = f'SFH_shaded'
 whole_sky = (41252.96 * u.deg**2).to(u.arcmin**2)
 survey_area = 0.28 * u.degree**2
 fsky = float(survey_area / whole_sky)
-phi_max = evs._apply_fsky(N, f, F, fsky)
+phi_max = evs.apply_fsky(N, f, F, fsky)
 f_b = 0.156
 
 CI_mhalo = compute_conf_ints(phi_max, log10m)
@@ -47,7 +47,7 @@ axes = axes.flatten()
 for ax, band in zip(axes, ['NIRCam.F277W', 'NIRCam.F115W', 'NIRCam.F444W', 'MIRI.F770W']):
 
     # Loads minimum tau
-    flux_grid_min = np.loadtxt(f"data/flux_grid_{band}_Exponential_tau-0.02.txt")
+    flux_grid_min = 10**log10m[:, None] * np.loadtxt(f"data/flux_per_mass_{band}_Exponential_tau-0.02.txt")
     CI_flux_min_list = []
     for i in redshift_idx:
         ci = compute_conf_ints(phi_max[i], flux_grid_min[:, i])
@@ -56,7 +56,7 @@ for ax, band in zip(axes, ['NIRCam.F277W', 'NIRCam.F115W', 'NIRCam.F444W', 'MIRI
     CI_flux_min = np.vstack(CI_flux_min_list)
     
     # Loads maximum tau
-    flux_grid_max = np.loadtxt(f"data/flux_grid_{band}_Exponential_tau-1.0.txt")
+    flux_grid_max = 10**log10m[:, None] * np.loadtxt(f"data/flux_per_mass_{band}_Exponential_tau-1.0.txt")
     CI_flux_max_list = []
     for i in redshift_idx:
         ci = compute_conf_ints(phi_max[i], flux_grid_max[:, i])
@@ -75,7 +75,7 @@ for ax, band in zip(axes, ['NIRCam.F277W', 'NIRCam.F115W', 'NIRCam.F444W', 'MIRI
            linewidth=1.5, alpha=0.5, zorder=2)
     
     # Plot LogNormal
-    flux_grid_ln = np.loadtxt(f"data/flux_grid_{band}_{lognormal_model}.txt")
+    flux_grid_ln = 10**log10m[:, None] * np.loadtxt(f"data/flux_per_mass_{band}_{lognormal_model}.txt")
     CI_flux_ln_list = []
     for i in redshift_idx:
         ci_ln = compute_conf_ints(phi_max[i], flux_grid_ln[:, i])
@@ -86,7 +86,7 @@ for ax, band in zip(axes, ['NIRCam.F277W', 'NIRCam.F115W', 'NIRCam.F444W', 'MIRI
     ax.plot(z, CI_flux_ln[:,3], linestyle='--', c='coral', linewidth=2.5, zorder=4)
     
     # Plot DPL
-    flux_grid_dpl = np.loadtxt(f"data/flux_grid_{band}_{dpl_model}.txt")
+    flux_grid_dpl = 10**log10m[:, None] * np.loadtxt(f"data/flux_per_mass_{band}_{dpl_model}.txt")
     CI_flux_dpl_list = []
     for i in redshift_idx:
         ci_dpl = compute_conf_ints(phi_max[i], flux_grid_dpl[:, i])
