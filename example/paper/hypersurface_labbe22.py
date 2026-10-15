@@ -21,30 +21,26 @@ whole_sky = (41252.96 * u.deg**2).to(u.arcmin**2)
 survey_area = 38 * u.arcmin**2
 fsky = float(survey_area / whole_sky)
 
-phi_max = evs._apply_fsky(N, f, F, fsky)
+phi_max = evs.apply_fsky(N, f, F, fsky)
 
 f_b = 0.16
 CI_mhalo = compute_conf_ints(phi_max, log10m)
 CI_baryon = np.log10(10**CI_mhalo * f_b)
 
-# mstar_pdf = np.vstack([
-#     apply_fs_distribution(_phi_max, log10m, _N=int(1e3), method='lognormal') \
-#     for _phi_max in phi_max
-# ])
-
 mstar_pdf = np.vstack([
-    apply_halo_dependent_fs(_phi_max, log10m, _N=int(5e3)) \
+    apply_fs_distribution(_phi_max, log10m, method='lognormal') \
     for _phi_max in phi_max
 ])
 
+# mstar_pdf = np.vstack([
+#     apply_halo_dependent_fs(_phi_max, log10m, _N=int(1e4)) \
+#     for _phi_max in phi_max
+# ])
+
 CIs = compute_conf_ints(mstar_pdf, log10m)
 
-
-
-fig, ax = plt.subplots(1, 1, figsize=(10, 5))
-
-low_z_colors = ['brown','lightcoral','mistyrose'] # ['steelblue','lightskyblue','powderblue']
-colors = low_z_colors
+fig, ax = plt.subplots(1, 1, figsize=(5, 5), layout="constrained")
+colors = ['brown','lightcoral','mistyrose'] # ['steelblue','lightskyblue','powderblue']
 
 ax.fill_between(z, CIs[:,0], CIs[:,6], alpha=1, color=colors[0])
 ax.fill_between(z, CIs[:,1], CIs[:,5], alpha=1, color=colors[1])
@@ -66,32 +62,17 @@ M_corr = np.log10(10**M_corr * f_b)
 
 # plt.errorbar(z_obs, M, xerr=[zmin,zmax], yerr=Merr, fmt='o', c='orange', label='Caputi+15')
 ax.errorbar(z_obs, M, xerr=zerr, yerr=M_err, fmt='o', c='grey')
-ax.errorbar(z_obs, M_corr, xerr=zerr, yerr=M_err, fmt='o', c='dodgerblue', label='Labbe+22')
+ax.errorbar(z_obs, M_corr, xerr=zerr, yerr=M_err, fmt='o', c='dodgerblue', label='Labbé+22')
 #ax.errorbar(z_obs[2:], M_corr[2:], xerr=zerr[:,2:], yerr=M_err[:,2:], fmt='o', c='darkorange')
 
-# # z = 17 solution
-# z_obs = np.array([16, 4.8, 4.9])
-# zerr = np.array([[0.6, 0.1, 0],
-#                  [0.6, 0.1, 0.02]])
-# 
-# M = np.array([9.6, 9.6, 8.7])
-# M_err = np.array([[0.2, 0.2, 0.1],
-#                  [0.2, 0.5, 0.1]])
-# 
-# M_corr, _epsilon = eddington_bias(np.log10(10**M * (1./f_b)), M_err)
-# M_corr = np.log10(10**M_corr * f_b)
-# 
-# # plt.errorbar(z_obs, M, xerr=[zmin,zmax], yerr=Merr, fmt='o', c='orange', label='Caputi+15')
-# ax.errorbar(z_obs, M, xerr=zerr, yerr=M_err, fmt='o', c='grey')
-# ax.errorbar(z_obs, M_corr, xerr=zerr, yerr=M_err, fmt='o', c='darkblue', label='Naidu+22')
+ax.set_xlim(5, 12)
+ax.set_ylim(6.5, 13)
+ax.set_xlabel(r'$z$', size=20)
+ax.tick_params(labelsize=15)
+ax.set_ylabel(r'$\log_{10}(M^{\star}_{\mathrm{max}} \,/\, M_{\odot})$', size=20)
+ax.text(0.05, 0.04, r'$A = 38 \; \mathrm{arcmin}^2$', size=15, color='black', alpha=0.8, transform = ax.transAxes)
 
-ax.set_xlim(0.1, 18)
-ax.set_ylim(6, 14.8)
-ax.set_xlabel(r'$z$', size=17)
-ax.set_ylabel(r'$\mathrm{log_{10}}(M^{\star}_{\mathrm{max}} \,/\, M_{\odot})$', size=15)
-ax.text(0.05, 0.04, r'$A = 40 \; \mathrm{arcmin}^2$', size=12, color='black', alpha=0.8, transform = ax.transAxes)
-
-leg = ax.legend(frameon=False, bbox_to_anchor=(0.37,0.2), fontsize=12, handletextpad=0.2) 
+leg = ax.legend(frameon=False, loc='lower left', bbox_to_anchor=(0.03,0.09), fontsize=14, handletextpad=0.5)
 plt.gca().add_artist(leg) # Add the legend manually to the current Axes.
 
 line1 = plt.Line2D((0,1),(0,0), color=colors[0], linewidth=5)
@@ -110,12 +91,12 @@ leg = ax.legend(handles=[line4,line5,line_dummy,line3,line2,line1],
               r'$3\sigma$'
           ],
           frameon=False,
-          loc='upper right', fontsize=12, ncol=2)
+          loc='upper right', fontsize=14, ncol=2)
 
 vp = leg._legend_box._children[-1]._children[0] 
 for c in vp._children: c._children.reverse() 
 vp.align="right" 
 
 # plt.show()
-plt.savefig('plots/evs_%s.pdf'%_obs_str, bbox_inches='tight', dpi=200)
+plt.savefig('plots/evs_%s.pdf'%_obs_str, dpi=200)
 plt.close()

@@ -2,41 +2,45 @@ import numpy as np
 from scipy import integrate
 import hmf
 
-def compute_conf_ints(pdf, x, lims = [0.0013498980, 0.0227501319, 0.15865525, 
-                                      0.500, 0.8413447, 0.97724986, 0.998650102]):
+def compute_conf_ints(pdf, x, y=None, lims = [0.0013498980, 0.0227501319, 0.15865525,
+                                              0.500, 0.8413447, 0.97724986, 0.998650102]):
     """
     Compute confidence intervals for a given pdf
-    
+
     Parameters
     ----------
     x (array): x coordinates
     pdf (array): probability density function evaluated at x
+    y (array): optional monotonic function of x, evaluated at x. If given the
+        intervals are returned in these coordinates instead, e.g. the flux at
+        each stellar mass. The cdf is always integrated over x, so no Jacobian
+        is needed; quantiles are preserved under a monotonic transform.
     lims (array): confidence intervals to compute
 
     Returns
     -------
     CI (array): confidence intervals
-    
+
     """
-    
-    intcum = integrate.cumulative_trapezoid(pdf, x, initial=0.)
 
-    if np.sum(intcum) == 0:
-        return np.zeros(len(lims))
+    pdf = np.asarray(pdf, dtype=float)
+    cdf = integrate.cumulative_trapezoid(pdf, x, axis=-1, initial=0.)
+    coord = x if y is None else np.asarray(y, dtype=float)
 
+    # Invert each (per-row normalised) CDF by interpolation, so the CI
+    # coordinates are continuous rather than snapped to the grid.
     if np.squeeze(pdf).ndim > 1:
-        intcum[intcum > 0] = intcum[intcum > 0.] / intcum[intcum > 0].max(axis=0)
+        norm = cdf[:, -1][:, None]
+        cdf = np.divide(cdf, norm, out=np.zeros_like(cdf), where=norm > 0)
+        rows = coord if coord.ndim > 1 else np.broadcast_to(coord, cdf.shape)
+        return np.array([np.interp(lims, _c, _y) for _c, _y in zip(cdf, rows)])
 
-        CI = np.vstack([x[[np.max(np.where(_ic < lim)) \
-                         for _ic in intcum]] for lim in lims]).T
-    else:
-        intcum[intcum > 0] = intcum[intcum > 0] / intcum[intcum > 0].max()
-        CI = x[[np.max(np.where(intcum < lim)) for lim in lims]]
-
-    return CI
+    if cdf[-1] == 0:
+        return np.zeros(len(lims))
+    return np.interp(lims, cdf / cdf[-1], coord)
 
 
-def eddington_bias(m, m_err, mf = hmf.MassFunction()):
+def eddington_bias(m, m_err, mf = None):
     """
     Calculate masses corrected for eddington bias.
     
@@ -47,10 +51,13 @@ def eddington_bias(m, m_err, mf = hmf.MassFunction()):
     Args:
     m (array): object masses in log base 10
     m_err (array): object mass errors in log base 10
-    
+    mf: mass function, from `hmf` package (default: `hmf.MassFunction()`)
+
     Returns:
-    (array): corrected masses 
+    (array): corrected masses
     """
+    if mf is None: mf = hmf.MassFunction()
+
     m_err_ln = np.log(10**(m+np.mean(m_err,axis=0))) - np.log(10**m)
     
     epsilon = np.zeros(len(m))

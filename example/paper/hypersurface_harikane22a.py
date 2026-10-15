@@ -21,13 +21,13 @@ whole_sky = (41252.96 * u.deg**2).to(u.arcmin**2)
 survey_area = 90 * u.arcmin**2
 fsky = float(survey_area / whole_sky)
 
-phi_max = evs._apply_fsky(N, f, F, fsky)
+phi_max = evs.apply_fsky(N, f, F, fsky)
 
 f_b = 0.16
 CI_mhalo = compute_conf_ints(phi_max, log10m)
 CI_baryon = np.log10(10**CI_mhalo * f_b)
 
-mstar_pdf = np.vstack([apply_fs_distribution(_phi_max, log10m, _N=int(1e5), method='lognormal') \
+mstar_pdf = np.vstack([apply_fs_distribution(_phi_max, log10m, method='lognormal') \
         for _phi_max in phi_max])
 CIs = compute_conf_ints(mstar_pdf, log10m)
 

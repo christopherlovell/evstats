@@ -64,12 +64,12 @@ for ax, survey_area, survey_name, name_short, area_short in \
     
     fsky = float((survey_area / whole_sky).to(''))
     print(survey_name, survey_area, fsky) 
-    phi_max = evs._apply_fsky(N, f, F, fsky)
+    phi_max = evs.apply_fsky(N, f, F, fsky)
 
     CI_mhalo = compute_conf_ints(phi_max, log10m)
     CI_baryon = np.log10(10**CI_mhalo * f_b)
 
-    mstar_pdf = np.vstack([apply_fs_distribution(_phi_max, log10m, _N=int(1e5), method='lognormal') \
+    mstar_pdf = np.vstack([apply_fs_distribution(_phi_max, log10m, method='lognormal') \
             for _phi_max in phi_max])
     CIs = compute_conf_ints(mstar_pdf, log10m)
     
