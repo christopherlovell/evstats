@@ -1,7 +1,7 @@
 # evstats
 A python module for calculating extreme value statistics of the halo and galaxy stellar mass distributions. Full details provided in [Lovell et al. 2023](https://academic.oup.com/mnras/article/518/2/2511/6823705).
 
-<img src="http://www.christopherlovell.co.uk/assets/img/evs-1400.webp" alt="drawing" width="400"/>
+<img src="https://www.christopherlovell.co.uk/assets/img/evs-1400.webp" alt="drawing" width="400"/>
 
 ### Installation
 
@@ -17,7 +17,7 @@ from evstats import stats
 from evstats import stellar
 ```
 
-The core package needs only numpy, scipy, astropy and [hmf](https://github.com/halomod/hmf). hmf is held below 3.7, whose changed defaults shift the halo mass function; the tabulated EVS in `example/data/` were computed with hmf 3.6.
+evstats requires Python 3.12 or newer. The core package needs only numpy, scipy, astropy and [hmf](https://github.com/halomod/hmf). hmf is held at 3.6, since other versions shift the halo mass function and the tabulated EVS in `example/data/` were computed with it.
 
 Optional dependencies are installed as extras:
 
