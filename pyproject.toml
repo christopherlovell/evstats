@@ -45,9 +45,17 @@ observables = [
     "unyt",
     "cosmos-synthesizer",
 ]
+# Building the documentation in docs/
+docs = [
+    "evstats[examples]",
+    "sphinx",
+    "myst-nb",
+    "shibuya",
+]
 
 [project.urls]
 Homepage = "https://github.com/christopherlovell/evstats"
+Documentation = "https://www.christopherlovell.co.uk/evstats/"
 Repository = "https://github.com/christopherlovell/evstats"
 Paper = "https://academic.oup.com/mnras/article/518/2/2511/6823705"
 
