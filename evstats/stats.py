@@ -9,17 +9,22 @@ def compute_conf_ints(pdf, x, y=None, lims = [0.0013498980, 0.0227501319, 0.1586
 
     Parameters
     ----------
-    x (array): x coordinates
-    pdf (array): probability density function evaluated at x
-    y (array): optional monotonic function of x, evaluated at x. If given the
+    pdf : array
+        probability density function evaluated at x
+    x : array
+        x coordinates
+    y : array, optional
+        monotonic function of x, evaluated at x. If given the
         intervals are returned in these coordinates instead, e.g. the flux at
         each stellar mass. The cdf is always integrated over x, so no Jacobian
         is needed; quantiles are preserved under a monotonic transform.
-    lims (array): confidence intervals to compute
+    lims : array
+        confidence intervals to compute
 
     Returns
     -------
-    CI (array): confidence intervals
+    CI : array
+        confidence intervals
 
     """
 
@@ -48,13 +53,21 @@ def eddington_bias(m, m_err, mf = None):
     
     where epsilon is the slope of the halo mass function.
     
-    Args:
-    m (array): object masses in log base 10
-    m_err (array): object mass errors in log base 10
-    mf: mass function, from `hmf` package (default: `hmf.MassFunction()`)
+    Parameters
+    ----------
+    m : array
+        object masses in log base 10
+    m_err : array
+        object mass errors in log base 10
+    mf : hmf.MassFunction, optional
+        mass function (default: `hmf.MassFunction()`)
 
-    Returns:
-    (array): corrected masses
+    Returns
+    -------
+    array
+        corrected masses
+    array
+        slope of the halo mass function, epsilon
     """
     if mf is None: mf = hmf.MassFunction()
 

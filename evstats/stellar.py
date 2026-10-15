@@ -19,12 +19,15 @@ def log10_fs_pdf(v, method='lognormal'):
 
     Parameters
     ----------
-    v (array): log10 stellar fraction, uniformly spaced and <= 0
-    method (str): parametric form of f_s pdf, one of 'lognormal', 'normal', 'uniform' or 'exponential'
+    v : array
+        log10 stellar fraction, uniformly spaced and <= 0
+    method : str
+        parametric form of f_s pdf, one of 'lognormal', 'normal', 'uniform' or 'exponential'
 
     Returns
     -------
-    (array): normalised pdf of v
+    array
+        normalised pdf of v
 
     """
     f_s = 10**v
@@ -49,15 +52,21 @@ def apply_fs_distribution(pdf, _x, method='lognormal', f_b=0.16, vmin=-8.):
 
     Parameters
     ----------
-    pdf (array): probability density function on x
-    _x (array): log10 halo mass coordinates of pdf, uniformly spaced
-    method (str): parametric form of f_s pdf, see `log10_fs_pdf`
-    f_b (float): additional normalisation constant to apply (e.g. baryon fraction)
-    vmin (float): lower limit on log10(f_s) to include in the convolution
+    pdf : array
+        probability density function on x
+    _x : array
+        log10 halo mass coordinates of pdf, uniformly spaced
+    method : str
+        parametric form of f_s pdf, see `log10_fs_pdf`
+    f_b : float
+        additional normalisation constant to apply (e.g. baryon fraction)
+    vmin : float
+        lower limit on log10(f_s) to include in the convolution
 
     Returns
     -------
-    pdf (array): stellar mass pdf, on the same coordinates _x
+    pdf : array
+        stellar mass pdf, on the same coordinates _x
 
     """
     dx = _x[1] - _x[0]
@@ -127,6 +136,7 @@ def apply_halo_dependent_fs(
     N=int(1e3),
     f_b=0.16
 ):
+    """Stellar mass PDF with `halo_dependent_fs` stellar fractions, by Monte Carlo sampling of the halo EVS PDF."""
     # Sample _N haloes
     halom = sample_halo_evs_pdf(pdf, log10m, N)
      
