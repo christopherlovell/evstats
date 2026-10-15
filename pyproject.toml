@@ -7,7 +7,7 @@ name = "evstats"
 version = "0.2"
 description = "Calculate extreme value statistics of the halo and galaxy mass distributions"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
 authors = [
@@ -28,8 +28,8 @@ classifiers = [
 dependencies = [
     "numpy>=2.0",
     "scipy>=1.6",
-    # hmf 3.7 changed its defaults, shifting the mass function; example/data uses 3.6
-    "hmf>=3.5,<3.7",
+    # other hmf versions shift the mass function; example/data uses 3.6 (needs python>=3.12)
+    "hmf>=3.6,<3.7",
     "astropy",
 ]
 
