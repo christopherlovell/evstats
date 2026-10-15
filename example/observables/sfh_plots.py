@@ -50,11 +50,6 @@ def sed_curve(sfh_type, p):
 frac = np.linspace(0, 1, 10)
 exp_tau = np.logspace(np.log10(0.03), np.log10(1.0), 10)  # |tau|, rising exponential
 sfh_models = {
-    "Exponential": dict(
-        cmap="Blues", clabel=r"$\tau \,/\, \mathrm{Gyr}$", lognorm=True, fid_val=0.1,
-        vals=exp_tau,
-        params=[{"tau": -t * Gyr} for t in exp_tau],
-        fid={"tau": -0.1 * Gyr}),
     "LogNormal": dict(
         cmap="Oranges", clabel=r"width $\tau$", lognorm=False, fid_val=0.40,
         vals=0.25 + 0.45 * frac,
@@ -67,6 +62,11 @@ sfh_models = {
         params=[{"peak_age": p * Gyr, "alpha": a, "beta": -a}
                 for a, p in zip(10 - 9 * frac, 0.05 + 0.15 * frac)],
         fid={"peak_age": 0.1 * Gyr, "alpha": 5, "beta": -5}),
+    "Exponential": dict(
+        cmap="Blues", clabel=r"$\tau \,/\, \mathrm{Gyr}$", lognorm=True, fid_val=0.1,
+        vals=exp_tau,
+        params=[{"tau": -t * Gyr} for t in exp_tau],
+        fid={"tau": -0.1 * Gyr}),
 }
 
 ages_yr = np.linspace(0, max_age.to_value("yr"), 500, endpoint=False)
@@ -110,7 +110,7 @@ for j, (sfh_type, m) in enumerate(sfh_models.items()):
     ax_sed.set_xscale("log")
     ax_sed.set_yscale("log")
     ax_sed.set_xlim(0.1, 5.0)
-    ax_sed.set_ylim(2e-2, 20)
+    ax_sed.set_ylim(8e-2, 20)
     ax_sed.set_xticks([0.1, 0.2, 0.5, 1, 2, 5])
     ax_sed.set_xticklabels(["0.1", "0.2", "0.5", "1", "2", "5"])
     ax_sed.xaxis.set_minor_locator(NullLocator())

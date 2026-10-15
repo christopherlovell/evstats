@@ -37,7 +37,9 @@ bands = ['NIRCam.F150W', 'NIRCam.F277W', 'NIRCam.F444W']
 _greens = plt.get_cmap('Greens')
 colors = [_greens(0.7), _greens(0.45), _greens(0.25)]
 
-# Casey+24 COSMOS-Web candidates; redshifts from BAGPIPES, aperture-based photometry
+# Casey+24 COSMOS-Web candidates; redshifts from BAGPIPES, aperture-based photometry.
+# Photometric redshifts are drawn as open (white-filled, hiding the error bars)
+# symbols, spectroscopic as filled.
 z_obs = np.array([9.69, 12.08, 11.46, 11.46, 9.15, 9.82, 10.20, 11.19, 10.63, 13.2, 13.4, 14.0])
 zerr = np.array([[0.25, 0.16, 0.04, 0.23, 0.35, 0.45, 0.54, 0.3, 0.46, 0.9, 1.2, 2.4],
                  [0.24, 0.13, 0.43, 0.28, 0.29, 0.22, 0.51, 0.31, 0.52, 0.6, 0.7, 1.1]])
@@ -81,9 +83,9 @@ for ax, band in zip(axes, bands):
     ax.errorbar(z_obs[det], np.log10(flux[det]), xerr=zerr[:, det],
                 yerr=(np.log10(flux[det]) - np.log10(flux[det] - err[det]),
                       np.log10(flux[det] + err[det]) - np.log10(flux[det])),
-                fmt='o', c='orange', ms=5, lw=1.2, zorder=5)
+                fmt='o', c='crimson', mfc='white', mew=1.3, ms=6, lw=1.2, zorder=5)
     ax.errorbar(z_obs[lim], np.log10(flux[lim] + err[lim]), xerr=zerr[:, lim],
-                yerr=0.3, uplims=True, fmt='o', c='orange', ms=5, lw=1.2, zorder=5)
+                yerr=0.3, uplims=True, fmt='o', c='crimson', mfc='white', mew=1.3, ms=6, lw=1.2, zorder=5)
 
     ax.set_xlim(2, 18)
     ax.set_ylim(-1.5, 8.6)
@@ -100,10 +102,11 @@ handles = [plt.Line2D([0], [0], color=colors[2], lw=5),
            plt.Line2D([0], [0], color=colors[0], lw=5),
            plt.Line2D([0], [0], color='black', linestyle='dotted', lw=2),
            plt.Line2D([0], [0], color='black', linestyle='dashed', lw=1.4),
-           plt.Line2D([0], [0], color='orange', marker='o', linestyle='None', ms=5)]
+           plt.Line2D([0], [0], color='crimson', marker='o', mfc='white', mew=1.3,
+                      linestyle='None', ms=6)]
 labels = [r'$1\sigma$', r'$2\sigma$', r'$3\sigma$',
           r'$\mathrm{med}(F_{\nu}^{\mathrm{max}})$',
-          r'$f_{\star} = 1$; $+3\sigma$', 'Casey+24']
+          r'$f_{\star} = 1$; $+3\sigma$', 'Casey+24 (photo-$z$)']
 axes[0].legend(handles=handles, labels=labels, frameon=False, loc='upper right',
                markerfirst=False, alignment='right', fontsize=11)
 

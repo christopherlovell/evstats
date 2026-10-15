@@ -1,3 +1,5 @@
+example/observables/plots/*.pdf
+example/observables/plots/*.png
 example/paper/plots/*.pdf
 example/paper/plots/*.gif
 example/paper/plots/*.png

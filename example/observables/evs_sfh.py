@@ -55,26 +55,40 @@ def median_ci(tag, band):
     return np.log10(np.where(ci > 0, ci, 1e-30))
 
 
-fig, axes = plt.subplots(1, 3, figsize=(13, 4.2), sharey=True, layout="constrained")
+# Differences are taken relative to the fiducial exponential, the reference model of
+# the SPS/IMF/metallicity figure, and truncated at the lower limit of the flux row.
+FLUX_CUT = 0.1  # nJy
 
-for ax, band in zip(axes, ['NIRCam.F115W', 'NIRCam.F277W', 'NIRCam.F444W']):
+fig, axes = plt.subplots(2, 3, figsize=(13, 7.2), sharex=True, sharey="row",
+                         height_ratios=[1.6, 1], layout="constrained")
+
+for (ax, dax), band in zip(axes.T, ['NIRCam.F115W', 'NIRCam.F277W', 'NIRCam.F444W']):
+    ref = median_ci(forms["Exponential"]["fid"], band)
+    ref = np.where(ref > np.log10(FLUX_CUT), ref, np.nan)
     for m in forms.values():
         sweep = np.vstack([median_ci(t, band) for t in m["sweep"]])
+        fid = median_ci(m["fid"], band)
         ax.fill_between(z, sweep.min(0), sweep.max(0), color=m["color"], alpha=0.2, lw=0, zorder=1)
-        ax.plot(z, median_ci(m["fid"], band), color=m["color"], lw=2.2, zorder=3)
+        ax.plot(z, fid, color=m["color"], lw=2.2, zorder=3)
 
-    ax.set_xlim(2, 18)
-    ax.set_ylim(-1, 8)
-    ax.set_xlabel('$z$', size=12)
+        dsweep = np.where(sweep > np.log10(FLUX_CUT), sweep, np.nan) - ref
+        dax.fill_between(z, dsweep.min(0), dsweep.max(0), color=m["color"], alpha=0.2, lw=0, zorder=1)
+        dax.plot(z, np.where(fid > np.log10(FLUX_CUT), fid, np.nan) - ref,
+                 color=m["color"], lw=2.2, zorder=3)
+
+    ax.set_ylim(np.log10(FLUX_CUT), 8)
     ax.text(0.15, 0.95, band.split('.')[-1], size=12, color='black',
             va='top', transform=ax.transAxes)
+    dax.set_xlim(2, 18)
+    dax.set_xlabel('$z$', size=12)
 
-axes[0].set_ylabel(r"$\log_{10}(F_\nu \,/\, \mathrm{nJy})$", size=12)
+axes[0, 0].set_ylabel(r"$\log_{10}(F_\nu \,/\, \mathrm{nJy})$", size=12)
+axes[1, 0].set_ylabel(r"$\Delta \log_{10} F_\nu\ \mathrm{[dex]}$", size=12)
 
 handles = [plt.Line2D([0], [0], color=m["color"], lw=2.2) for m in forms.values()]
 handles.append(mpatches.Patch(color="grey", alpha=0.3))
 labels = list(forms.keys()) + ["parameter range"]
-axes[0].legend(handles=handles, labels=labels, frameon=False, loc='upper right', fontsize=11)
+axes[0, 0].legend(handles=handles, labels=labels, frameon=False, loc='upper right', fontsize=11)
 
 plt.savefig(f'plots/evs_{_obs_str}.png', bbox_inches='tight', dpi=200)
 print(f"wrote plots/evs_{_obs_str}.png")

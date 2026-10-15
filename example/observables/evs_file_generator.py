@@ -2,7 +2,8 @@
 
 One flux grid per (SFH, metallicity, SPS model, JWST band), written to
 data/flux_grid_{band}_{sfh_tag}{z_tag}_{grid_name}.txt. Uses the locally
-installed grids (bpass here is 0.1,300.0, fsps is mist-miles); incident
+installed grids (bpass here is 0.1,300.0; fsps is 0.08,100 to match the bc03
+IMF range); incident
 emission is stellar only, intrinsic includes photoionisation.
 
 Usage: evs_file_generator.py [SFH_SUBSTRING] [GRID_SUBSTRING] [METALLICITY]
@@ -33,11 +34,11 @@ GRIDS = [
     ("bc03-2016-Miles_chabrier-0.1,100", lambda g: IncidentEmission(grid=g)),
     ("bc03-2016-Miles_salpeter-0.1,100", lambda g: IncidentEmission(grid=g)),
     ("bc03-2016-Miles_kroupa-0.1,100", lambda g: IncidentEmission(grid=g)),
-    ("fsps-3.2-mist-miles_chabrier03-0.5,120", lambda g: IncidentEmission(grid=g)),
+    ("fsps-3.2-mistmiles_chabrier03-0.08,100", lambda g: IncidentEmission(grid=g)),
     ("bpass-2.2.1-bin_chabrier03-0.1,300.0", lambda g: IncidentEmission(grid=g)),
     ("bc03-2016-Miles_chabrier-0.1,100_cloudy-c23.01-sps",
      lambda g: IntrinsicEmission(grid=g, fesc=0.0)),
-    ("fsps-3.2-mistmiles_chabrier03-0.5,120_cloudy-c23.01-sps",
+    ("fsps-3.2-mistmiles_chabrier03-0.08,100_cloudy-c23.01-sps",
      lambda g: IntrinsicEmission(grid=g, fesc=0.0)),
     ("bpass-2.2.1-bin_chabrier03-0.1,300.0_cloudy-c23.01-sps",
      lambda g: IntrinsicEmission(grid=g, fesc=0.0)),

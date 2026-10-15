@@ -29,10 +29,10 @@ sfh_tag = "Exponential_tau-0.1"
 bc03_chab = f"{sfh_tag}_bc03-2016-Miles_chabrier-0.1,100"
 salpeter = f"{sfh_tag}_bc03-2016-Miles_salpeter-0.1,100"
 kroupa = f"{sfh_tag}_bc03-2016-Miles_kroupa-0.1,100"
-fsps = f"{sfh_tag}_fsps-3.2-mist-miles_chabrier03-0.5,120"
+fsps = f"{sfh_tag}_fsps-3.2-mistmiles_chabrier03-0.08,100"
 bpass = f"{sfh_tag}_bpass-2.2.1-bin_chabrier03-0.1,300.0"
 bc03_neb = f"{bc03_chab}_cloudy-c23.01-sps"
-fsps_neb = f"{sfh_tag}_fsps-3.2-mistmiles_chabrier03-0.5,120_cloudy-c23.01-sps"
+fsps_neb = f"{sfh_tag}_fsps-3.2-mistmiles_chabrier03-0.08,100_cloudy-c23.01-sps"
 bpass_neb = f"{bpass}_cloudy-c23.01-sps"
 
 # The metallicity row varies the (delta function) stellar metallicity about the
