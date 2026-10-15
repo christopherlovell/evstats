@@ -4,6 +4,8 @@ example/paper/plots/*.pdf
 example/paper/plots/*.gif
 example/paper/plots/*.png
 example/observables/data/*.txt
+# fiducial-model flux tables, used in the docs
+!example/observables/data/flux_per_mass_*_Exponential_tau-0.1_bpass-2.2.1-bin_chabrier03-0.1,300.0_cloudy-c23.01-sps.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
