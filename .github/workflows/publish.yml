@@ -1,0 +1,42 @@
+# Publish to PyPI on every merge to main that bumps the version in pyproject.toml.
+# Merges that leave the version unchanged are skipped, since PyPI never
+# accepts the same version twice.
+name: publish
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write   # PyPI trusted publishing, no token needed
+      contents: write   # tag and GitHub release
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+
+      - name: Check whether this version is new
+        id: version
+        run: |
+          v=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          if curl -sfo /dev/null "https://pypi.org/pypi/evstats/$v/json"; then
+            echo "evstats $v is already on PyPI, skipping"
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.version.outputs.new == 'true'
+        run: uv build
+
+      - if: steps.version.outputs.new == 'true'
+        run: uv publish
+
+      - if: steps.version.outputs.new == 'true'
+        run: gh release create "v${{ steps.version.outputs.version }}" dist/* --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
