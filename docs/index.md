@@ -1,6 +1,8 @@
 # evstats
 
-evstats is a python package for extreme value statistics (EVS) in astrophysics: the probability distribution of the most extreme object, such as the most massive or the brightest, expected in a survey of a given area and redshift range. EVS applies to physical distribution functions, such as the halo and galaxy stellar mass functions, and to observed ones, such as the distribution of galaxy fluxes in a given band. An observed object far beyond this distribution is in tension with the model behind it. The method is described in [Lovell et al. 2023](https://academic.oup.com/mnras/article/518/2/2511/6823705).
+evstats is a python package for extreme value statistics (EVS) in astrophysics: the probability distribution of the most extreme object, such as the most massive or the brightest, expected in a survey of a given area and redshift range. EVS applies to physical distribution functions, such as the halo and galaxy stellar mass functions, and to observed ones, such as the distribution of galaxy fluxes in a given band. 
+
+The method is described in [Lovell et al. 2023](https://academic.oup.com/mnras/article/518/2/2511/6823705) and [Lovell et al. 2026](https://arxiv.org/abs/2610.23016).
 
 ```{image} https://www.christopherlovell.co.uk/assets/img/evs-1400.webp
 :width: 400px
@@ -32,14 +34,14 @@ pip install ".[examples]"
 ## Overview
 
 1. [Halo mass EVS](halo.ipynb): the PDF of the most massive halo in a redshift shell and survey area, from the halo mass function.
-2. [Stellar mass EVS](stellar.ipynb): the PDF of the most massive galaxy's stellar mass, from the baryon fraction and a distribution of stellar fractions.
-3. [Observables](observables.ipynb): the flux of the most massive galaxy, for a stellar population model.
+2. [Stellar mass EVS](stellar.ipynb): the PDF of the most massive galaxy's stellar mass, from the baryon fraction and stellar fraction distribution.
+3. [Flux EVS](observables.ipynb): the flux of the brightest galaxy, for a given forward model for emission.
 
-All of the plots and analysis in Lovell et al. 2023 can be recreated with the scripts in `example/paper/`.
+All of the plots and analysis in Lovell et al. 2023 can be recreated with the scripts in `example/paper/`. Plots and analysis from Lovell et al. 2026 can be recreated from the scripts in `example/obserables`.
 
 ## Citing
 
-If you use evstats, please cite [Lovell et al. 2023](https://academic.oup.com/mnras/article/518/2/2511/6823705).
+If you use evstats, please cite [Lovell et al. 2023](https://academic.oup.com/mnras/article/518/2/2511/6823705). If you use the observables functionality, please additionally cite [Lovell et al. 2026](https://arxiv.org/abs/2610.23016).
 
 ```{toctree}
 :hidden:
